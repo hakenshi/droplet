@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import { Lock, Mail } from 'lucide-react'
+import { Mail } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
@@ -20,21 +20,17 @@ export default function Login() {
           </div>
         </div>
         <div className='py-5 flex flex-col gap-5 justify-evenly'>
-          <p className='text-2xl font-semibold'>Faça login</p>
+          <p className='text-2xl font-semibold'>Recuperação de senha</p>
           <form action="" className='flex flex-col gap-5'>
             <div className='bg-zinc-100 rounded-full px-4 py-5 w-11/12 flex gap-4 text-zinc-600'>
               <Mail />
               <input placeholder='E-mail' type="text" className='w-full bg-zinc-100 focus:outline-none font-medium text-zinc-600' />
             </div>
-            <div className='bg-zinc-100 rounded-full px-4 py-5 w-11/12 flex gap-4 text-zinc-600'>
-              <Lock />
-              <input placeholder='Senha' type="text" className='w-full bg-zinc-100 focus:outline-none font-medium text-zinc-600' />
-            </div>
             <div className='rounded-md px-2 py-4 w-11/12 flex flex-col gap-2 text-zinc-600'>
-              <Button  className='w-full rounded-full uppercase font-bold'>Entrar</Button>
+              <Button  className='w-full rounded-full uppercase font-bold'>Enviar por e-mail</Button>
               <div className='flex justify-between p-2'>
+                <Link className='hover:text-zinc-800' href={"/login"}>Entrar</Link>
                 <Link className='hover:text-zinc-800' href={"/register"}>Inscreva-se</Link>
-                <Link className='hover:text-zinc-800' href={"/reset-password"}>Esqueceu a senha?</Link>
               </div>
             </div>
           </form>

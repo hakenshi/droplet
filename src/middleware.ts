@@ -10,7 +10,11 @@ export function middleware(request: NextRequest) {
     }
 
     if (token && publicPaths.includes(request.nextUrl.pathname)) {
-        return NextResponse.redirect(new URL("/", request.url));
+        return NextResponse.redirect(new URL("/home", request.url));
+    }
+
+    if(token && request.nextUrl.pathname === '/') {
+        return NextResponse.redirect(new URL("/home", request.url));
     }
 
     return NextResponse.next();

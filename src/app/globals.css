@@ -70,6 +70,7 @@
 }
 .border-gradient{
   border-image: linear-gradient(115deg,#1d4ed8, #0ea5e9 ,#bef264);
+  border-collapse: collapse;
 }
 
 /* HTML: <div class="loader"></div> */

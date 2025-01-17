@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import UserProfileTabs from '@/components/user-profile-tabs'
+import UserProfileTabs from '../../components/user-profile-tabs'
 import { getAuthUser } from '@/utils/getAuthUser'
 import Image from 'next/image'
 import React from 'react'
@@ -12,7 +12,7 @@ export default async function ProfilePage() {
 
     return (
         <div className='grid grid-rows-[0.65fr,1fr,auto] overflow-y-scroll'>
-            <div className='flex justify-center w-full shadow-inner shadow-black border-white border-4'>
+            <div className='flex justify-center w-full shadow-inner shadow-black'>
                 <Image className='object-cover w-screen h-[26rem]' width={2000} height={0} src={'https://w.wallhaven.cc/full/57/wallhaven-57lkm9.jpg'} alt={`${user.name}'s background image`} />
             </div>
             <div className='h-fit'>

@@ -23,7 +23,7 @@ class AuthController extends Controller
 
         $user = User::where("email", $data['email'])->first();
 
-        if(!$user || !Hash::check($data['password'], $user->password)){
+        if (!$user || !Hash::check($data['password'], $user->password)) {
             throw ValidationException::withMessages([
                 'email' => 'Email or password is incorrect'
             ]);
@@ -51,14 +51,17 @@ class AuthController extends Controller
 
         return response()->json([
             'token' => $token,
-            'user' => $user
+            'user' => new UserResource($user),
         ]);
 
     }
 
-    public function logout(Request $request): void
+    public function logout(Request $request)
     {
-        $request->user()->tokens()->delete();
+        if ($request->user()) {
+            $request->user()->tokens()->delete();
+        }
+        return response([], 204);
     }
 
 }

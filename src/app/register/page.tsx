@@ -1,10 +1,60 @@
+'use client'
+
 import { Button } from '@/components/ui/button'
 import { Lock, Mail, User } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import React from 'react'
+import React, { FormEvent, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { storeToken } from '../login/actions'
+
+const buttonColors = {
+    'default': 'bg-sky-500 hover:bg-sky-600',
+    'error': 'bg-red-600 hover:bg-red-700',
+    'success': 'bg-green-500 hover:bg-green-600',
+}
 
 export default function Register() {
+
+    const router = useRouter()
+
+    const [errors, setErrors] = useState<ApiErrorResponse<AuthError> | null>(null)
+    const [loading, setLoading] = useState(false)
+    const [buttonState, setButtonState] = useState<'default' | 'error' | 'success'>('default')
+
+    const submit = async (e: FormEvent) => {
+        e.preventDefault()
+        setLoading(true)
+        const form = new FormData(e.target as HTMLFormElement)
+        const formData = Object.fromEntries(form.entries())
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/register`, {
+            headers: {
+                'Content-Type': 'application/json',
+                accept: 'application/json',
+            },
+            method: 'POST',
+            body: JSON.stringify(formData),
+        })
+
+        const data: AuthResponse = await response.json()
+
+        if (data?.errors) {
+            setErrors({ errors: data.errors, message: data.message })
+            setButtonState('error')
+            setLoading(false)
+            return
+        }
+
+        const { status } = await storeToken(data)
+
+        if (status === 200) {
+            setButtonState('success')
+            setLoading(false)
+            router.replace("/")
+        }
+    }
+
     return (
         <div className='h-screen bg-zinc-100 grid place-items-center'>
             <div className='grid grid-cols-2 max-w-5xl w-full bg-white rounded-2xl min-h-2/3 shadow-md gap-10'>
@@ -19,29 +69,34 @@ export default function Register() {
                         </p>
                     </div>
                 </div>
-                <div className='py-5 flex flex-col gap-5 justify-evenly'>
+                <div className='py-6 flex flex-col gap-5 justify-evenly'>
                     <p className='text-2xl font-semibold'>Inscreva-se</p>
-                    <form action="" className='flex flex-col gap-5'>
+                    <form onSubmit={submit} className='flex flex-col gap-5'>
                         <div className='bg-zinc-100 rounded-full px-4 py-5 w-11/12 flex gap-4 text-zinc-600'>
                             <User />
-                            <input placeholder='Nome de usuário' type="text" className='w-full bg-zinc-100 focus:outline-none font-medium text-zinc-600' />
+                            <input name='username' placeholder='Nome de usuário' type="text" className='w-full bg-zinc-100 focus:outline-none font-medium text-zinc-600' />
                         </div>
+                        {errors?.errors?.username && <span className='text-red-500 px-4 text-sm'>{errors.errors.username.join(', ')}</span>}
                         <div className='bg-zinc-100 rounded-full px-4 py-5 w-11/12 flex gap-4 text-zinc-600'>
                             <Mail />
-                            <input placeholder='E-mail' type="text" className='w-full bg-zinc-100 focus:outline-none font-medium text-zinc-600' />
+                            <input name='email' placeholder='E-mail' type="text" className='w-full bg-zinc-100 focus:outline-none font-medium text-zinc-600' />
                         </div>
+                        {errors?.errors?.email && <span className='text-red-500 px-4 text-sm'>{errors.errors.email.join(', ')}</span>}
                         <div className='bg-zinc-100 rounded-full px-4 py-5 w-11/12 flex gap-4 text-zinc-600'>
                             <Lock />
-                            <input placeholder='Senha' type="text" className='w-full bg-zinc-100 focus:outline-none font-medium text-zinc-600' />
+                            <input name='password' placeholder='Senha' type="password" className='w-full bg-zinc-100 focus:outline-none font-medium text-zinc-600' />
                         </div>
-                        <div className='px-2 w-11/12 flex gap-4 text-zinc-600'>
-                            <input type="checkbox" name="" id="" />
-                            <label htmlFor="">Aceito os termos de uso e a políticas de privacidade</label>
+                        {errors?.errors?.password && <span className='text-red-500 px-4 text-sm'>{errors.errors.password.join(', ')}</span>}
+                        <div className='px-2 py-5 w-11/12 flex gap-4 text-zinc-600'>
+                            <input type="checkbox" name="terms" id="terms" />
+                            <label htmlFor="terms">Aceito os termos de uso e a políticas de privacidade</label>
                         </div>
-                        <div className='rounded-md px-2 w-11/12 flex flex-col gap-2 text-zinc-600'>
-                            <Button className='w-full rounded-full uppercase font-bold'>Cadastrar</Button>
+                        <div className='rounded-md p-2 w-11/12 flex flex-col gap-2 text-zinc-600'>
+                            <Button disabled={loading} className={`w-full rounded-full uppercase font-bold ${buttonColors[buttonState]}`}>
+                                {loading ? (<span className='loader'></span>) : "Cadastrar"}
+                            </Button>
                             <div className='flex justify-between p-2'>
-                                <Link className='hover:text-zinc-800' href={"/"}>Esqueceu a senha?</Link>
+                                <Link className='hover:text-zinc-800' href={"/"}>Acessar</Link>
                                 <Link className='hover:text-zinc-800' href={"/reset-password"}>Esqueceu a senha?</Link>
                             </div>
                         </div>

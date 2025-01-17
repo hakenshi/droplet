@@ -7,7 +7,6 @@ import Link from 'next/link'
 import React, { FormEvent, useState } from 'react'
 import { storeToken } from './actions'
 import { useRouter } from 'next/navigation'
-import { useFormStatus } from 'react-dom'
 
 const buttonColors = {
   'default': 'bg-sky-500 hover:bg-sky-600',
@@ -19,10 +18,10 @@ export default function Login() {
 
   const router = useRouter()
 
-  const [errors, setErrors] = useState<ApiErrorResponse<LoginError> | null>(null)
+  const [errors, setErrors] = useState<ApiErrorResponse<AuthError> | null>(null)
 
   const [loading, setLoading] = useState(false)
-  const [buttonState, setButtonState] = useState<'default' | 'error' | 'sucess'>('default')
+  const [buttonState, setButtonState] = useState<'default' | 'error' | 'success'>('default')
 
   const submit = async (e: FormEvent) => {
 
@@ -40,7 +39,7 @@ export default function Login() {
       body: JSON.stringify(formData),
     })
 
-    const data: LoginResponse = await response.json()
+    const data: AuthResponse = await response.json()
 
     if (data?.errors) {
       setErrors({ errors: data.errors, message: data.message })
@@ -53,7 +52,7 @@ export default function Login() {
     const { status } = await storeToken(data)
 
     if (status === 200) {
-      setButtonState('sucess')
+      setButtonState('success')
       setLoading(false)
       router.replace("/")
     }

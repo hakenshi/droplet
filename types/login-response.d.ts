@@ -3,9 +3,10 @@ interface SuccessResponse {
   token: string
 }
 
-interface LoginError{
+interface AuthError{
     email?: string[]
     password?: string[]
+    username: string[]
   }
 
-type LoginResponse = SuccessResponse & ApiErrorResponse<LoginError>;
+type AuthResponse = SuccessResponse & ApiErrorResponse<AuthError>;

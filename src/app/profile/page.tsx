@@ -11,7 +11,7 @@ export default async function ProfilePage() {
     return (
         <div className='grid grid-rows-[0.65fr,1fr] overflow-y-scroll'>
             <div className='flex justify-center w-full shadow-inner shadow-black'>
-                <Image className='object-cover w-screen h-[26rem]' width={2000} height={0} src={'https://w.wallhaven.cc/full/57/wallhaven-57lkm9.jpg'} alt={`${user.name}'s background image`} />
+                <Image className='w-screen h-[26rem]' width={1920} height={1080} src={'https://w.wallhaven.cc/full/57/wallhaven-57lkm9.jpg'} alt={`${user.name}'s background image`} />
             </div>
             <div className='h-fit'>
                 <div className='relative flex flex-col justify-center items-start -mt-32'>

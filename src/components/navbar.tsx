@@ -32,8 +32,8 @@ export default async function Navbar() {
 
     }
     return (
-        <header className="text-white h-full bg-gradient p-5 shadow-xl">
-            <nav className="w-44 grid grid-rows-[0.1fr_auto_0.1fr] h-full gap-5 justify-items-center place-items-center">
+        <header className=" text-white h-full bg-gradient p-5 shadow-xl">
+            <nav className="min-w-44 grid grid-rows-[0.1fr_auto_0.1fr] h-full gap-5 justify-items-center place-items-center">
                 <Link href={"/"} className="flex items-center gap-2">
                     <Image src={"/logo.png"} alt="droplet logo" width={50} height={50} />
                     <p className="font-black text-2xl">DROPLET</p>

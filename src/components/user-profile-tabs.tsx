@@ -60,11 +60,11 @@ export default function UserProfileTabs() {
                     </button>
                     {/* Linha fixa para aba inativa */}
                     <div
-                        className={`absolute bottom-0 left-0 w-full h-[2px] bg-zinc-300`}
+                        className={`absolute bottom-0 left-0 w-11/12 h-[2px] bg-zinc-300`}
                     />
                     {/* Linha animada para aba ativa */}
                     <motion.div
-                        className={`absolute bottom-0 left-0 w-full h-[2px] bg-gradient`}
+                        className={`absolute bottom-0 left-0 w-11/12 h-[2px] bg-gradient`}
                         initial={{ scaleX: 1 }}
                         animate={{
                             scaleX: activeTab === "posts" ? 1 : 0,
@@ -88,11 +88,11 @@ export default function UserProfileTabs() {
                     </button>
                     {/* Linha fixa para aba inativa */}
                     <div
-                        className={`absolute bottom-0 left-0 w-full h-[2px] bg-zinc-300`}
+                        className={`absolute bottom-0 left-0 w-11/12 h-[2px] bg-zinc-300`}
                     />
                     {/* Linha animada para aba ativa */}
                     <motion.div
-                        className={`absolute bottom-0 left-0 w-full h-[2px] bg-gradient`}
+                        className={`absolute bottom-0 left-0 w-11/12 h-[2px] bg-gradient`}
                         initial={{ scaleX: 0 }}
                         animate={{
                             scaleX: activeTab === "midias" ? 1 : 0,

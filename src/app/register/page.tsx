@@ -46,6 +46,7 @@ export default function Register() {
             return
         }
 
+
         const { status } = await storeToken(data)
 
         if (status === 200) {

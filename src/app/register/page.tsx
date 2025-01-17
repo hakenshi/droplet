@@ -34,11 +34,11 @@ export default function Register() {
                             <Lock />
                             <input placeholder='Senha' type="text" className='w-full bg-zinc-100 focus:outline-none font-medium text-zinc-600' />
                         </div>
-                        <div className='px-4 py-5 w-11/12 flex gap-4 text-zinc-600'>
+                        <div className='px-2 w-11/12 flex gap-4 text-zinc-600'>
                             <input type="checkbox" name="" id="" />
-                            <label htmlFor="">Aceito os termos de uso e a política de privacidade</label>
+                            <label htmlFor="">Aceito os termos de uso e a políticas de privacidade</label>
                         </div>
-                        <div className='rounded-md px-2 py-4 w-11/12 flex flex-col gap-2 text-zinc-600'>
+                        <div className='rounded-md px-2 w-11/12 flex flex-col gap-2 text-zinc-600'>
                             <Button className='w-full rounded-full uppercase font-bold'>Cadastrar</Button>
                             <div className='flex justify-between p-2'>
                                 <Link className='hover:text-zinc-800' href={"/"}>Esqueceu a senha?</Link>

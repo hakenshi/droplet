@@ -9,4 +9,8 @@ Route::post('register', [AuthController::class, 'register']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('users', [UserController::class, 'index']);
+    Route::prefix('user')->group(function () {
+        Route::get('{user}', [UserController::class, 'show']);
+        Route::patch('{user}', [UserController::class, 'update']);
+    });
 });

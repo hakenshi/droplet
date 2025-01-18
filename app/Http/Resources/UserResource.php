@@ -16,6 +16,10 @@ class UserResource extends JsonResource
     {
         return [
             'username' => $this->username,
+            'birth_date' => $this->birth_date ?? null,
+            'profile_image' => $this->profile_image ?? null,
+            'cover_image' => $this->cover_image ?? null,
+            'bio' => $this->bio ?? null,
             'email' => $this->email,
             'name' => $this->name ?? null,
             'surname' => $this->surname ?? null,

@@ -18,9 +18,9 @@ export default function Sidebar({users}:SideBarProps) {
             <div>
                 <p className='text-xs p-2'>Usuários Recomendados: </p>
                 <div className="space-y-2">
-                    {users.map((user, index) => (
+                    { users ? users.map((user, index) => (
                         <UserCard key={index} user={user} />
-                    ))}
+                    )) : "Nenhum usuário encontrado."}
                 </div>
             </div>
         </div>

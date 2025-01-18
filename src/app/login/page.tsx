@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation'
 const buttonColors = {
   'default': 'bg-sky-500 hover:bg-sky-600',
   'error': 'bg-red-600 hover:bg-red-700',
-  'sucess': 'bg-green-500 hover:bg-green-600',
+  'success': 'bg-green-500 hover:bg-green-600',
 }
 
 export default function Login() {

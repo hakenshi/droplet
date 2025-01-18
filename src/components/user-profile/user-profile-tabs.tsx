@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useReducer, useState } from 'react'
-import { easeIn, easeInOut, motion } from "framer-motion"
+import { easeIn, motion } from "framer-motion"
 
 // Tipos para o estado e ação
 type TabState = "posts" | "midias"

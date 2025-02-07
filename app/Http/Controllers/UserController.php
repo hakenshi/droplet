@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use Illuminate\Http\File;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -19,10 +21,11 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(User $user)
+
+    public function show()
     {
-        //
     }
+
 
     /**
      * Update the specified resource in storage.

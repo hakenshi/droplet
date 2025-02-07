@@ -31,7 +31,7 @@ export default function CreatePostDialog() {
                 <DialogHeader>
                     <DialogTitle>Criar Postagem</DialogTitle>
                 </DialogHeader>
-                <DialogDescription className='max-h-96 h-full'>
+                <DialogDescription className='max-h-200 h-full'>
                     <Textarea onChange={handleTextArea} ref={textAreaRef} placeholder='Escreva sua ideia aqui...' className='max-h-96 overflow-auto' style={{ resize: "none", height: areaSize ? `${areaSize + 5}px` : 'auto' }}>
 
                     </Textarea>

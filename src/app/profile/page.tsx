@@ -10,7 +10,7 @@ export default async function ProfilePage() {
     
 
     return (
-        <div className='grid grid-rows-[0.65fr,0.65,1fr] overflow-y-scroll px-10'>
+        <div className='grid grid-rows-[0.65fr_0.65_1fr] overflow-y-scroll px-10'>
             <div className='flex justify-center w-full h-96'>
                 <Image className='rounded-md w-screen' width={1200} height={300} src={'https://w.wallhaven.cc/full/57/wallhaven-57lkm9.jpg'} alt={`${user.name}'s background image`} />
 

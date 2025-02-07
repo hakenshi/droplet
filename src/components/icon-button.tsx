@@ -12,7 +12,7 @@ export default function IconButton({ className, type, Icon, ...props }: IconButo
             <Icon />
             <input
                 type={type}
-                className={cn("w-full bg-zinc-100 focus:outline-none font-medium text-zinc-600", className)}
+                className={cn("w-full bg-zinc-100 focus:outline-hidden font-medium text-zinc-600", className)}
                 {...props}
             />
         </div>

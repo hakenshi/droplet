@@ -9,6 +9,11 @@ import { getAuthUser } from '@/utils/getAuthUser'
 import Logout from './logout'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { Dialog, DialogHeader, DialogTitle, DialogTrigger, DialogContent } from './ui/dialog'
+import { Button } from './ui/button'
+import { DialogDescription } from '@radix-ui/react-dialog'
+import { Textarea } from './ui/textarea'
+import CreatePostDialog from './posts/create-post-dialog'
 
 export default async function Navbar() {
 
@@ -25,7 +30,7 @@ export default async function Navbar() {
             }
         })
 
-        if(respose.status === 204){
+        if (respose.status === 204) {
             cookie.delete("token")
             redirect("/")
         }
@@ -66,20 +71,15 @@ export default async function Navbar() {
 
                     <li>
                         <Link
-                            className='flex items-center gap-2  hover:bg-zinc-100/35 transition-colors px-4 py-2 rounded-full w-full'
+                            className={`flex items-center gap-2 hover:bg-zinc-100/35 transition-colors px-4 py-2 rounded-full w-full`}
                             href={"/"}>
                             <Bookmark />
                             Coleções</Link>
                     </li>
 
                     <li>
-                        <Link
-                            className='flex items-center gap-2  hover:bg-zinc-100/35 transition-colors px-4 py-2 rounded-full w-full'
-                            href={"/"}>
-                            <MessageCircleIcon />
-                            Chat</Link>
+                        <CreatePostDialog />
                     </li>
-
                 </ul>
                 <DropdownMenu>
                     <DropdownMenuTrigger className="flex items-center gap-5 hover:bg-zinc-100/35 transition-colors duration-200 p-2 rounded-full w-full">

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { easeIn, motion } from 'framer-motion'
-import Posts from './posts'
+import Posts from '../posts/posts'
 
 type TabState = 'posts' | 'midias'
 

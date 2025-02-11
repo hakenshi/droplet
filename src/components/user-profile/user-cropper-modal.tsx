@@ -1,6 +1,6 @@
 'use client'
 
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Dialog, DialogHeader, DialogContent, DialogTitle, DialogFooter } from '../ui/dialog'
 import Cropper, { Area } from "react-easy-crop"
 import { Button } from '../ui/button'
@@ -24,7 +24,7 @@ export default function UserCropperModal({ setState, state, image}: UserCropperM
         if (image) {
             setIsLoaded(false); // Reseta o estado
             setTimeout(() => {
-                setRatio(1200/300)
+                setRatio(1536/384)
                 setIsLoaded(true)
             }, 200); // Força um pequeno delay para garantir o re-render
         }

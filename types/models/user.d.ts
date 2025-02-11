@@ -8,7 +8,7 @@ interface User{
     email: string
     bio: string
     birth_date: Date
-    password: string
+    password?: string
     remember_token: string | null
     created_at: Date
     updated_at: Date

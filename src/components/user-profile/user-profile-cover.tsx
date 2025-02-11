@@ -26,7 +26,7 @@ export default function UserProfileCover({
 
     return (
         <div
-            className="relative w-full h-[18rem] rounded-md overflow-hidden z-0"
+            className="relative w-full h-48 rounded-md overflow-hidden z-0"
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
         >

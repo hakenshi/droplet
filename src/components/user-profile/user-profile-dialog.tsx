@@ -25,13 +25,13 @@ export default function UserProfileDialog({ user, children, dialogState: dialogS
                     Editar Perfil
                 </Button>
             </DialogTrigger>
-            <DialogContent className='max-w-2xl w-full'>
+            <DialogContent className='max-w-[45rem] w-full'>
                 <DialogHeader>
                     <DialogTitle className='flex items-center'>
                         Editar Perfil
                     </DialogTitle>
                 </DialogHeader>
-                <form action="" className='max-h-[40rem] h-full grid grid-rows-[auto_1fr]'>
+                <form action="">
                     <div className='mb-5'>
                         {children}
                         <div className='relative w-fit flex flex-col justify-center items-start ml-3 -mt-24 z-30'>

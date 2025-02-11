@@ -14,7 +14,7 @@ type TabButtonProps = {
 }
 
 const TabButton: React.FC<TabButtonProps> = ({ label, active, disabled, onClick }) => (
-  <div className="relative">
+  <div className="relative mx-3">
     <button
       className={`relative z-10 p-2 w-full transition-colors duration-500 ${active ? 'text-zinc-700' : 'text-gray-500'
         }`}
@@ -24,11 +24,11 @@ const TabButton: React.FC<TabButtonProps> = ({ label, active, disabled, onClick 
       {label}
     </button>
     {/* Linha fixa */}
-    <div className="absolute bottom-0 left-0 w-11/12 h-[2px] bg-zinc-300" />
+    <div className="absolute bottom-0 left-0 w-full rounded-full h-[2px] bg-zinc-300" />
     {/* Linha animada */}
     <motion.div
-      className="absolute bottom-0 left-0 w-11/12 h-[2px] bg-gradient"
-      initial={{ scaleX: 0 }}
+      className="absolute bottom-0 left-0 w-full rounded-full h-[2px] bg-gradient"
+      initial={{ scaleX: active ? 1 : 0 }}
       animate={{ scaleX: active ? 1 : 0 }}
       transition={{ duration: 0.5, ease: easeIn }}
       style={{ originX: 0.5 }}
@@ -37,7 +37,7 @@ const TabButton: React.FC<TabButtonProps> = ({ label, active, disabled, onClick 
 )
 
 
-export default function UserProfileTabs({ user }: { user: User }) {
+export default function UserProfileTabs({ posts }: { posts: PostSuccessResponse[] }) {
 
   const [activeTab, setActiveTab] = useState<TabState>('posts')
   const [isAnimating, setIsAnimating] = useState(false)
@@ -67,7 +67,7 @@ export default function UserProfileTabs({ user }: { user: User }) {
         />
       </div>
       <div className="mt-5">
-        {activeTab === 'posts' && <Posts user={user} />}
+        {activeTab === 'posts' && <Posts posts={posts} />}
         {/* {activeTab === 'midias' && <Midias/>} */}
       </div>
     </div>

@@ -1,19 +1,16 @@
 import React from 'react'
-
 import Link from 'next/link'
 import Image from 'next/image'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
-import { HouseIcon, User, BellIcon, Bookmark, MessageCircleIcon } from 'lucide-react'
+import { HouseIcon, User, BellIcon, Bookmark } from 'lucide-react'
 import { getAuthUser } from '@/utils/getAuthUser'
 import Logout from './logout'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { Dialog, DialogHeader, DialogTitle, DialogTrigger, DialogContent } from './ui/dialog'
-import { Button } from './ui/button'
-import { DialogDescription } from '@radix-ui/react-dialog'
-import { Textarea } from './ui/textarea'
-import CreatePostDialog from './posts/create-post-dialog'
+
+import { revalidateTag } from 'next/cache'
+import UserPostDialog from "@/components/user-profile/user-post-dialog";
 
 export default async function Navbar() {
 
@@ -32,13 +29,15 @@ export default async function Navbar() {
 
         if (respose.status === 204) {
             cookie.delete("token")
+            revalidateTag('auth')
             redirect("/")
         }
-
     }
+
     return (
         <header className=" text-white h-full bg-gradient p-5 shadow-xl">
-            <nav className="min-w-44 grid grid-rows-[0.1fr_auto_0.1fr] h-full gap-5 justify-items-center place-items-center">
+            <nav
+                className="min-w-44 grid grid-rows-[0.1fr_auto_0.1fr] h-full gap-5 justify-items-center place-items-center">
                 <Link href={"/"} className="flex items-center gap-2">
                     <Image src={"/logo.png"} alt="droplet logo" width={50} height={50} />
                     <p className="font-black text-2xl">DROPLET</p>
@@ -78,11 +77,12 @@ export default async function Navbar() {
                     </li>
 
                     <li>
-                        <CreatePostDialog />
+                        <UserPostDialog token={token} user={user} />
                     </li>
                 </ul>
                 <DropdownMenu>
-                    <DropdownMenuTrigger className="flex items-center gap-5 hover:bg-zinc-100/35 transition-colors duration-200 p-2 rounded-full w-full">
+                    <DropdownMenuTrigger
+                        className="flex items-center gap-5 hover:bg-zinc-100/35 transition-colors duration-200 p-2 rounded-full w-full">
                         <Avatar>
                             <AvatarImage src={"/avatar.png"} alt="avatar" />
                             <AvatarFallback className="bg-sky-500 text-white">
@@ -98,6 +98,7 @@ export default async function Navbar() {
                             <span className="text-zinc-800">Perfil</span>
                         </Link>
                         <Logout user={user} logoutFn={handleLogout} />
+
                     </DropdownMenuContent>
                 </DropdownMenu>
             </nav>

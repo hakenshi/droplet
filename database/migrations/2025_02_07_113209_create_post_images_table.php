@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('post_donations', function (Blueprint $table) {
+        Schema::create('post_images', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('post_id')->constrained('posts');
-            $table->decimal('amount', 10, 2);
-            $table->enum('payment_status', ['pending', 'accepted', 'rejected'])->default('pending');
+            $table->foreignId('post_id')->constrained()->cascadeOnDelete();
+            $table->string('url');
             $table->timestamps();
         });
     }
@@ -26,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('post_donations');
+        Schema::dropIfExists('post_images');
     }
 };

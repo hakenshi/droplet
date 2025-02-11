@@ -6,5 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class PostDonation extends Model
 {
-    //
+    protected $fillable = [
+        'post_id',
+        'user_id',
+        'amount',
+        'payment_status',
+    ];
 }

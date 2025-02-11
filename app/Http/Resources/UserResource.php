@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -15,6 +16,7 @@ class UserResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'username' => $this->username,
             'birth_date' => $this->birth_date ?? null,
             'profile_image' => $this->profile_image ?? null,
@@ -23,8 +25,7 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'name' => $this->name ?? null,
             'surname' => $this->surname ?? null,
-            'password' => $this->password ?? '',
-            'created_at' => $this->created_at,
+            'created_at' => Carbon::createFromFormat('Y-m-d H:i:s', $this->created_at)->format('d/m/Y'),
         ];
     }
 }

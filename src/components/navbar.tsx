@@ -3,7 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
-import { HouseIcon, User, BellIcon, Bookmark } from 'lucide-react'
+import { HouseIcon, User, BellIcon, Bookmark, MessageCircleIcon } from 'lucide-react'
 import { getAuthUser } from '@/utils/getAuthUser'
 import Logout from './logout'
 import { cookies } from 'next/headers'
@@ -77,7 +77,12 @@ export default async function Navbar() {
                     </li>
 
                     <li>
-                        <UserPostDialog token={token} user={user} />
+                        <UserPostDialog user={user} >
+                            <button className='flex items-center gap-2 bg-transparent hover:bg-zinc-100/35 transition-colors px-4 py-2 rounded-full w-full'>
+                                <MessageCircleIcon />
+                                Postar
+                            </button>
+                        </UserPostDialog>
                     </li>
                 </ul>
                 <DropdownMenu>

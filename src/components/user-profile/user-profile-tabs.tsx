@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { easeIn, motion } from 'framer-motion'
 import Posts from '../posts/posts'
 
-type TabState = 'posts' | 'midias'
+type TabState = 'posts' | 'midias' | 'liked_posts'
 
 type TabButtonProps = {
   label: string
@@ -52,7 +52,7 @@ export default function UserProfileTabs({ posts }: { posts: PostSuccessResponse[
 
   return (
     <div className="px-5">
-      <div className="grid grid-cols-2">
+      <div className="grid grid-cols-3">
         <TabButton
           label="Posts"
           active={activeTab === 'posts'}
@@ -64,6 +64,12 @@ export default function UserProfileTabs({ posts }: { posts: PostSuccessResponse[
           active={activeTab === 'midias'}
           disabled={isAnimating}
           onClick={() => handleTabChange('midias')}
+        />
+        <TabButton
+          label="Curtidas"
+          active={activeTab === 'liked_posts'}
+          disabled={isAnimating}
+          onClick={() => handleTabChange('liked_posts')}
         />
       </div>
       <div className="mt-5">

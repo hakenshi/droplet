@@ -20,9 +20,7 @@ export default function ResizeableTextArea({...rest}: React.TextareaHTMLAttribut
     }, [])
 
     return (
-
         <Textarea {...rest} onChange={handleTextArea} ref={textAreaRef} placeholder='Qual seu pensamento?' className='max-h-96 overflow-auto' style={{ resize: "none", height: areaSize ? `${areaSize + 5}px` : 'auto' }}>
         </Textarea>
-
     )
 }

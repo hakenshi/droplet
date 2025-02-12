@@ -1,9 +1,9 @@
 import UserEditProfileDialog from '@/components/user-profile/user-edit-profile-dialog'
 import UserProfileTabs from '@/components/user-profile/user-profile-tabs'
 import { getAuthUser } from '@/utils/getAuthUser'
-import { getUserPosts } from '@/utils/posts'
 import Image from 'next/image'
 import React from 'react'
+import { getUserPosts } from './actions'
 
 export default async function ProfilePage() {
 
@@ -13,7 +13,13 @@ export default async function ProfilePage() {
     return (
         <div className='grid grid-rows-[0.65fr,0.65,1fr] overflow-y-scroll px-5'>
             <div className='flex justify-center h-96'>
-                <Image className='rounded-md' width={1536} height={384} src={'https://w.wallhaven.cc/full/57/wallhaven-57lkm9.jpg'} alt={`${user.name}'s background image`} />
+                <Image
+                    className='rounded-md'
+                    width={1536}
+                    height={384}
+                    src={'https://w.wallhaven.cc/full/57/wallhaven-57lkm9.jpg'}
+                    alt={`${user.name}'s background image`}
+                />
             </div>
             <div className='h-fit'>
                 <div className='relative flex flex-col justify-center items-start -mt-32'>

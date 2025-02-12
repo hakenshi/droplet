@@ -6,22 +6,37 @@ import { AlertCircle, DollarSign, Ellipsis, Heart, MessageCircle, Pencil, Share2
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '../ui/dropdown-menu'
 import PostTime from './post-time'
 import IconButton from '../icon-button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog'
 import { useState } from 'react'
 import { Button } from '../ui/button'
-import { Textarea } from '../ui/textarea'
-import { deletePost } from '@/app/(user)/profile/actions'
+import { deletePost, storeLikePost } from '@/app/(user)/profile/actions'
+import UserPostDialog from '../user-profile/user-post-dialog'
+import Link from 'next/link'
 
 interface PostProps {
     author: User
-    post: Post
+    post: Post & {
+        post_comments: {
+            count: number
+        }
+        post_likes: {
+            count: number
+        }
+    }
+    authUsername?: string
 }
 
 export default function Post({ author, post }: PostProps) {
 
     const [isOpen, setIsOpen] = useState(false)
 
-    const [isEditing, setIsEditing] = useState(false)
+    const [isLiking, setIsLiking] = useState(false)
+
+    const likePost = async () => {
+        setIsLiking(true)
+        await storeLikePost(post.id)
+        setTimeout(() => setIsLiking(false), 1000)
+    }
 
     return (
         <Card className='rounded-sm shadow'>
@@ -41,34 +56,29 @@ export default function Post({ author, post }: PostProps) {
                                 <PostTime created_at={post.created_at} />
                             </div>
                             <div>
-                                <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <IconButton Icon={Ellipsis} color="blue" />
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent className='flex flex-col'>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <IconButton Icon={Ellipsis} color="blue" />
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className='flex flex-col'>
+                                        <Dialog open={isOpen} onOpenChange={setIsOpen}>
                                             <DialogTrigger asChild>
                                                 <IconButton className='p-5' Icon={Trash2} color="red" hasHoverEffect={false}>
                                                     Excluir
                                                 </IconButton>
                                             </DialogTrigger>
-                                            <IconButton onClick={() => setIsEditing(true)} className='p-5' Icon={Pencil} color="blue" hasHoverEffect={false}>
-                                                Editar
-                                            </IconButton>
-                                            <DialogContent >
+                                            <DialogContent>
                                                 <DialogHeader>
                                                     <DialogTitle>
                                                         Excluir Postagem?
                                                     </DialogTitle>
                                                 </DialogHeader>
-                                                <DialogDescription className='space-y-5'>
-                                                    <div>
-                                                        <p>
-                                                            Tem certeza que deseja excluir essa postagem?
-                                                            Essa ação é irreversível, sua publicação/postagem será excluída permanentemente.
-                                                        </p>
-                                                    </div>
-                                                </DialogDescription>
+                                                <div className='text-zinc-700 font-b'>
+                                                    <p>
+                                                        Tem certeza que deseja excluir essa postagem?
+                                                        Essa ação é irreversível, sua publicação/postagem será excluída permanentemente.
+                                                    </p>
+                                                </div>
                                                 <DialogFooter>
                                                     <div className='flex justify-end gap-3'>
                                                         <Button onClick={async () => { await deletePost(post.id); setIsOpen(false); }} variant={'destructive'}>Excluir</Button>
@@ -78,52 +88,42 @@ export default function Post({ author, post }: PostProps) {
                                                     </div>
                                                 </DialogFooter>
                                             </DialogContent>
-                                            <IconButton className='p-5' Icon={AlertCircle} color="yellow" hasHoverEffect={false}>
-                                                Denunciar
+                                        </Dialog>
+                                        <UserPostDialog user={author} value={post.content} id={post.id}>
+                                            <IconButton className='p-5' Icon={Pencil} color="blue" hasHoverEffect={false}>
+                                                Editar
                                             </IconButton>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </Dialog>
+                                        </UserPostDialog>
+                                        <IconButton className='p-5' Icon={AlertCircle} color="yellow" hasHoverEffect={false}>
+                                            Denunciar
+                                        </IconButton>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             </div>
                         </div>
                     </div>
                 </CardHeader>
                 <CardDescription>
-                    <div className='px-5 py-3'>
-                        {isEditing ? (
-                            <form>
-                                <Textarea defaultValue={post.content} />
-                                <div className='w-full flex justify-end items-center gap-4'>
-                                    <Button className='mt-3' type='submit'>
-                                        Salvar
-                                    </Button>
-                                    <Button variant={'destructive'} className='mt-3' type='button' onClick={() => setIsEditing(false)}>
-                                        Cancelar
-                                    </Button>
-                                </div>
-                            </form>
-                        )
-                            : (<p className='text-black px-4 py-2'>{post.content}</p>)}
-                    </div>
+                    <p className='text-black px-4 py-2'>
+                        {post.content}
+                    </p>
                 </CardDescription>
                 <CardFooter className='p-2'>
                     <div className='flex justify-between w-full'>
-                        {!isEditing && (
-                            <>
-                                <div className='flex'>
-                                    <IconButton Icon={Heart} color='red'>
-                                        100
-                                    </IconButton>
-                                    <IconButton Icon={MessageCircle} color="blue">
-                                        20
-                                    </IconButton>
-                                    {post.donation_goal && <IconButton Icon={DollarSign} color="green" />}
-                                </div>
-                                <div>
-                                    <IconButton Icon={Share2} color="green" hasHoverEffect={false} />
-                                </div>
-                            </>
-                        )}
+                        <div className='flex'>
+                            <IconButton disabled={isLiking} onClick={likePost} Icon={Heart} color='red'>
+                                {post.post_likes.count}
+                            </IconButton>
+                            <Link href={`/post/${post.id}`}>
+                                <IconButton Icon={MessageCircle} color="blue">
+                                    {post.post_comments.count}
+                                </IconButton>
+                            </Link>
+                            {post.donation_goal && <IconButton Icon={DollarSign} color="green" />}
+                        </div>
+                        <div>
+                            <IconButton Icon={Share2} color="green" hasHoverEffect={false} />
+                        </div>
                     </div>
                 </CardFooter>
             </CardContent>

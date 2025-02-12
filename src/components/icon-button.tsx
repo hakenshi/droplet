@@ -4,7 +4,7 @@ import { useState } from "react"
 
 interface IconButtonProps extends ButtonProps {
     Icon: LucideIcon
-    color: 'red' | 'blue' | 'green' | 'yellow'
+    color: 'red' | 'blue' | 'green' | 'yellow' | 'white'
     hasHoverEffect?: boolean
     children?: React.ReactNode
 }
@@ -17,7 +17,8 @@ export default function IconButton({ children, Icon, color, hasHoverEffect = tru
         red: '#f87171',
         blue: '#0ea5e9',
         green: '#34d399',
-        yellow: '#fbbf24'
+        yellow: '#fbbf24',
+        white: '#fff'
     }
 
     return (

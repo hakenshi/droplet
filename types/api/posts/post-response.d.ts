@@ -1,6 +1,13 @@
 type PostSuccessResponse = {
     author: User
-    post: Post
+    post: Post & {
+        post_comments: {
+            count: number
+        }
+        post_likes: {
+            count: number
+        }
+    }
 }
 
 type PostErrorResponse = {

@@ -16,6 +16,7 @@ class PostResource extends JsonResource
     {
         return [
             'author' => [
+                'id' => $this->user->id,
                 'profile_image' => $this->user->profile_image,
                 'username' => $this->user->username,
                 'name' => $this->user->name,
@@ -24,8 +25,15 @@ class PostResource extends JsonResource
             'post' => [
                 'id' => $this->id,
                 'content' => $this->content,
-                'post_image' => $this->postImages ? $this->postImages->map(fn($item) => $item->url)->toArray() : null,
-                'created_at' => $this->created_at
+                'post_images' => $this->postImages ? $this->postImages->map(fn($item) => $item->url)->toArray() : null,
+                'post_comments' => [
+                    'count' => $this->comments->count(),
+                ],
+                'post_likes' => [
+                    'count' => $this->likes->count(),
+                    'has_liked' => $this->likes()->where('user_id', \request()->user()->id)->exists(),
+                ],
+                'created_at' => $this->created_at,
             ],
         ];
     }

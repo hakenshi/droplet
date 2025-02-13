@@ -29,6 +29,26 @@ export async function getUserPosts(token: string, username: string) {
 
 }
 
+export async function getUserLikedPosts(token: string, username: string) {
+    const respose = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/liked/${username}`, {
+        next: {
+            tags: ['posts']
+        },
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': "application/json",
+            'Accept': "application/json",
+        }
+    })
+
+    const { data } = await respose.json()
+
+    return {
+        likedPosts: data
+    }
+
+}
+
 export async function storePost(data: Payload) {
 
     const { token } = await getAuthUser()

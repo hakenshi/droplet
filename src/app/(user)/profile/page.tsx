@@ -3,12 +3,13 @@ import UserProfileTabs from '@/components/user-profile/user-profile-tabs'
 import { getAuthUser } from '@/utils/getAuthUser'
 import Image from 'next/image'
 import React from 'react'
-import { getUserPosts } from './actions'
+import { getUserLikedPosts, getUserPosts } from './actions'
 
 export default async function ProfilePage() {
 
     const { user, token } = await getAuthUser()
     const { posts } = await getUserPosts(token, user.username)
+    const {likedPosts} = await getUserLikedPosts(token, user.username)
 
     return (
         <div className='grid grid-rows-[0.65fr,0.65,1fr] overflow-y-scroll px-5'>
@@ -44,7 +45,7 @@ export default async function ProfilePage() {
                         <UserEditProfileDialog user={user} />
                     </div>
                 </div>
-                <UserProfileTabs posts={posts as unknown as PostSuccessResponse[]} />
+                <UserProfileTabs posts={posts as unknown as PostSuccessResponse[]} likedPosts={likedPosts} />
             </div>
         </div>
     )

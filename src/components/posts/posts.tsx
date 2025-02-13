@@ -7,6 +7,8 @@ interface PostProps {
 
 export default function Posts({ posts }: PostProps) {
 
+    console.log(posts)
+
     return (
         <div className='grid grid-cols-1 gap-7 px-3 pb-10'>
             {posts.length > 0 ? posts.map(({ author, post }, index) => (

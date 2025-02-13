@@ -1,5 +1,5 @@
 import { LucideIcon } from "lucide-react"
-import { Button, ButtonProps } from "./ui/button"
+import { Button, ButtonProps } from "../ui/button"
 import { useState } from "react"
 
 interface IconButtonProps extends ButtonProps {
@@ -7,9 +7,10 @@ interface IconButtonProps extends ButtonProps {
     color: 'red' | 'blue' | 'green' | 'yellow' | 'white'
     hasHoverEffect?: boolean
     children?: React.ReactNode
+    hasLiked?: boolean
 }
 
-export default function IconButton({ children, Icon, color, hasHoverEffect = true, ...rest }: IconButtonProps) {
+export default function IconButton({ children, Icon, color, hasHoverEffect = true, hasLiked = false, ...rest }: IconButtonProps) {
 
     const [isHovering, setIsHovering] = useState(false)
 
@@ -29,7 +30,7 @@ export default function IconButton({ children, Icon, color, hasHoverEffect = tru
             {...rest}
         >
             <div className='flex items-center gap-3 w-full'>
-                <Icon color={isHovering ? colors[color] : "#000"} fill={hasHoverEffect && isHovering ? colors[color] : "#fff"} />
+                <Icon color={(isHovering || hasLiked) ? colors[color] : "#000"} fill={(hasHoverEffect && isHovering) || hasLiked ? colors[color] : "#fff"} />
                 {children}
             </div>
         </Button>

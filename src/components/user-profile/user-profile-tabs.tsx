@@ -37,7 +37,7 @@ const TabButton: React.FC<TabButtonProps> = ({ label, active, disabled, onClick 
 )
 
 
-export default function UserProfileTabs({ posts }: { posts: PostSuccessResponse[] }) {
+export default function UserProfileTabs({ posts, likedPosts }: { posts: PostSuccessResponse[], likedPosts: PostSuccessResponse[] }) {
 
   const [activeTab, setActiveTab] = useState<TabState>('posts')
   const [isAnimating, setIsAnimating] = useState(false)
@@ -49,6 +49,7 @@ export default function UserProfileTabs({ posts }: { posts: PostSuccessResponse[
       setTimeout(() => setIsAnimating(false), 1000)
     }
   }
+
 
   return (
     <div className="px-5">
@@ -74,6 +75,7 @@ export default function UserProfileTabs({ posts }: { posts: PostSuccessResponse[
       </div>
       <div className="mt-5">
         {activeTab === 'posts' && <Posts posts={posts} />}
+        {activeTab === 'liked_posts' && <Posts posts={likedPosts} />}
         {/* {activeTab === 'midias' && <Midias/>} */}
       </div>
     </div>

@@ -6,6 +6,7 @@ type PostSuccessResponse = {
         }
         post_likes: {
             count: number
+            has_liked: boolean
         }
     }
 }

@@ -5,24 +5,17 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { AlertCircle, DollarSign, Ellipsis, Heart, MessageCircle, Pencil, Share2, Trash2 } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '../ui/dropdown-menu'
 import PostTime from './post-time'
-import IconButton from '../icon-button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog'
 import { useState } from 'react'
 import { Button } from '../ui/button'
 import { deletePost, storeLikePost } from '@/app/(user)/profile/actions'
 import UserPostDialog from '../user-profile/user-post-dialog'
 import Link from 'next/link'
+import IconButton from '../buttons/icon-button'
 
 interface PostProps {
     author: User
-    post: Post & {
-        post_comments: {
-            count: number
-        }
-        post_likes: {
-            count: number
-        }
-    }
+    post: PostSuccessResponse['post']
     authUsername?: string
 }
 
@@ -111,7 +104,7 @@ export default function Post({ author, post }: PostProps) {
                 <CardFooter className='p-2'>
                     <div className='flex justify-between w-full'>
                         <div className='flex'>
-                            <IconButton disabled={isLiking} onClick={likePost} Icon={Heart} color='red'>
+                            <IconButton disabled={isLiking} onClick={likePost} Icon={Heart} color={'red'} hasLiked={post.post_likes.has_liked}>
                                 {post.post_likes.count}
                             </IconButton>
                             <Link href={`/post/${post.id}`}>

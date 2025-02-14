@@ -9,11 +9,10 @@ import { Button } from '../ui/button'
 export default function CommentForm({ postId, userId }: { postId: number, userId: number }) {
 
     const submit = async (e: FormEvent) => {
+        e.preventDefault()
         const formData = new FormData(e.target as HTMLFormElement)
-        const form = Object.fromEntries(formData.entries()) as unknown as { content: string }
-
-        await storeComment({ content: form.content, post_id: postId, user_id: userId })
-
+        const form = Object.fromEntries(formData.entries()) as unknown as { post: string }
+        await storeComment({ content: form.post, post_id: postId, user_id: userId })
     }
 
     return (

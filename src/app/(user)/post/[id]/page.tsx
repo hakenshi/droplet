@@ -1,12 +1,13 @@
 import React from 'react'
-import { getPost } from './action'
-import PostContainer from '@/components/posts/post-container'
+import { getPost, getPostComments } from './action'
 import PostHeader from '@/components/posts/post-header'
 import PostContent from '@/components/posts/post-content'
 import PostFooter from '@/components/posts/post-footer'
 import { getAuthUser } from '@/utils/getAuthUser'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import CommentForm from '@/components/comment/comment-form'
+import Comment from '@/components/comment/comment'
+import CommentContainer from '@/components/comment/comment-container'
 
 export default async function PostPage({ params }: { params: { id: string } }) {
     const { id } = await params
@@ -15,14 +16,16 @@ export default async function PostPage({ params }: { params: { id: string } }) {
 
     const { user } = await getAuthUser()
 
+    const { comments } = await getPostComments(post.id)
+
     return (
-        <div className='p-5'>
-            <PostContainer>
+        <div className='p-5 h-screen overflow-scroll pb-20'>
+            <CommentContainer>
                 <PostHeader hasBackButton={true} author={author} post={post} />
                 <PostContent post={post} />
                 <PostFooter user={user} post={post} />
-                <div className="border-t">
-                    <div className='px-10 pt-5'>
+                <div className="border-y">
+                    <div className='px-10 py-5'>
                         <div className='pb-5 flex text-zinc-700 text-sm items-center gap-2'>
                             <Avatar>
                                 <AvatarImage src={"/avatar.png"} alt="avatar" />
@@ -37,14 +40,14 @@ export default async function PostPage({ params }: { params: { id: string } }) {
                         </div>
                         <CommentForm postId={parseInt(id)} userId={user.id} />
                     </div>
-                    <div className='p-5'>
-                        <h2 className='text-xl text-zinc-800'>Comentários</h2>
-                        {/* {comments.map(({comment, author}, index) => (
-                        <Post key={index} author={author} post={comment as unknown as PostSuccessResponse} />
-                    ))} */}
-                    </div>
                 </div>
-            </PostContainer>
+                <div className='p-5'>
+                    <h2 className='text-xl text-zinc-800'>Comentários</h2>
+                    {comments.map(({ comment, author }, index) => (
+                        <Comment user={user} key={index} author={author} comment={comment} />
+                    ))}
+                </div>
+            </CommentContainer>
         </div>
     )
 }

@@ -10,7 +10,7 @@ type SideBarProps = {
 export default function Sidebar({users}:SideBarProps) {
 
     return (
-        <div className='border-l-2 border-zinc-400 px-2 py-5'>
+        <div className='border-l-2 h-full w-full border-zinc-400 px-2 py-5'>
             <div>
                 <Label className='p-2 text-zinc-700 text-xs'>Insira algo para buscar</Label>
                 <Input className='rounded-full' placeholder='Buscar usuários' />

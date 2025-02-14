@@ -11,10 +11,8 @@ export default async function ProfilePage() {
     const { posts } = await getUserPosts(token, user.username)
     const {likedPosts} = await getUserLikedPosts(token, user.username)
 
-    console.log(user)
-
     return (
-        <div className='grid grid-rows-[0.65fr,0.65,1fr] overflow-y-scroll px-5'>
+        <div className='grid grid-rows-[0.65fr,auto,1fr] max-h-screen overflow-y-scroll px-5'>
             <div className='flex justify-center h-96'>
                 <Image
                     className='rounded-md'

@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { CardHeader } from '../ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import PostTime from './post-time';
+import PostTime from '../posts/post-time';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import IconButton from '../buttons/icon-button';
 import { AlertCircle, Ellipsis, Pencil, Trash2 } from 'lucide-react';
@@ -16,18 +16,18 @@ import PostBackButton from '../buttons/post-back-button';
 
 type PostHeaderProps = {
     author: User,
-    post: PostSuccessResponse['post'],
+    comment: CommentSuccessResponse['comment'],
     hasBackButton?: boolean
 }
 
-export default function PostHeader({ author, post, hasBackButton = false }: PostHeaderProps) {
+export default function CommentHeader({ author, comment, hasBackButton = false }: PostHeaderProps) {
 
     const [isOpen, setIsOpen] = useState(false)
     const pathname = usePathname()
     const removePaddingTop = pathname.includes('/post/')
 
     return (
-        <CardHeader className={`${removePaddingTop ? 'px-0' : ''} z-10`}>
+        <CardHeader className={`${removePaddingTop ? 'px-0' : ''}`}>
             <div className='flex items-center gap-3'>
                 {hasBackButton && <PostBackButton />}
                 <Avatar>
@@ -40,7 +40,7 @@ export default function PostHeader({ author, post, hasBackButton = false }: Post
                     <div>
                         <p className='text-zinc-800'>{author.name ? `${author.name} ${author.surname}` : author.username}</p>
                         <p className='text-zinc-500 text-sm'>@{author.username}</p>
-                        <PostTime created_at={post.created_at} />
+                        <PostTime created_at={comment.created_at} />
                     </div>
                     <div>
                         <DropdownMenu>
@@ -68,7 +68,7 @@ export default function PostHeader({ author, post, hasBackButton = false }: Post
                                         </div>
                                         <DialogFooter>
                                             <div className='flex justify-end gap-3'>
-                                                <Button onClick={async () => { await deletePost(post.id); setIsOpen(false); }} variant={'destructive'}>Excluir</Button>
+                                                <Button onClick={async () => { await deletePost(comment.id); setIsOpen(false); }} variant={'destructive'}>Excluir</Button>
                                                 <Button onClick={() => setIsOpen(false)}>
                                                     Cancelar
                                                 </Button>
@@ -76,7 +76,7 @@ export default function PostHeader({ author, post, hasBackButton = false }: Post
                                         </DialogFooter>
                                     </DialogContent>
                                 </Dialog>
-                                <UserPostDialog user={author} value={post.content} id={post.id}>
+                                <UserPostDialog user={author} value={comment.content} id={comment.id}>
                                     <IconButton className='p-5' Icon={Pencil} color="blue" hasHoverEffect={false}>
                                         Editar
                                     </IconButton>

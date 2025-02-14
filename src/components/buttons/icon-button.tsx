@@ -29,6 +29,7 @@ export default function IconButton({ children, Icon, color, hasHoverEffect = tru
             variant={'ghost'}
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
+            data-prevent-redirect="true"
             {...rest}
         >
             <div className='flex items-center gap-3 w-full'>

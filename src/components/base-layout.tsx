@@ -8,7 +8,7 @@ export default async function BaseLayout({ children, token }: { children: React.
     const {users} = await getUsers(token)
     
     return (
-        <div className="w-screen h-screen grid grid-cols-[0.5fr,3fr,0.5fr]">
+        <div className="w-screen max-h-screen h-full overflow-clip grid grid-cols-[0.5fr,3fr,0.5fr]">
             <Navbar />
             <main className="grid p-2 mx-2 grid-cols-[1fr,auto]">
                 {children}

@@ -1,3 +1,15 @@
+type PostMinimalResponse = {
+    post: {
+        id: int
+        content: string
+        post_likes: {
+            count: number
+            has_liked: boolean
+        }
+        created_at: Date
+    }
+}
+
 type PostSuccessResponse = {
     author: User
     post: Post & {

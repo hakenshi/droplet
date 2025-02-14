@@ -60,7 +60,7 @@ export default function UserPostDialog({ id, user, value, children }: UserPostPr
                 <div className='max-h-96 h-full'>
                     <form onSubmit={handleSubmit} className='space-y-2'>
                         <div>
-                            <ResizeableTextArea defaultValue={value} name={'post'} />
+                            <ResizeableTextArea placeholder='Qual seu pensamento?' defaultValue={value} name={'post'} />
                         </div>
                         <div className='flex justify-between pt-2'>
                             <div className='flex gap-2'>
@@ -74,7 +74,8 @@ export default function UserPostDialog({ id, user, value, children }: UserPostPr
                                 </button>
                             </div>
                             <div>
-                                <Button className='rounded-full' type='submit'>{value && id ? "Salvar" : "Postar"}</Button>
+                                <Button className='rounded-full' type='submit'>{value && id ? "Salvar" : "Postar"}
+                                </Button>
                             </div>
                         </div>
                     </form>

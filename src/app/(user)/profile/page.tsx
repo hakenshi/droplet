@@ -11,6 +11,8 @@ export default async function ProfilePage() {
     const { posts } = await getUserPosts(token, user.username)
     const {likedPosts} = await getUserLikedPosts(token, user.username)
 
+    console.log(user)
+
     return (
         <div className='grid grid-rows-[0.65fr,0.65,1fr] overflow-y-scroll px-5'>
             <div className='flex justify-center h-96'>
@@ -45,7 +47,7 @@ export default async function ProfilePage() {
                         <UserEditProfileDialog user={user} />
                     </div>
                 </div>
-                <UserProfileTabs posts={posts as unknown as PostSuccessResponse[]} likedPosts={likedPosts} />
+                <UserProfileTabs user={user} posts={posts as unknown as PostSuccessResponse[]} likedPosts={likedPosts} />
             </div>
         </div>
     )

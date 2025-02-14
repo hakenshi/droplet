@@ -4,9 +4,9 @@ import React, { useState } from 'react'
 import { CardFooter } from '../ui/card'
 import IconButton from '../buttons/icon-button'
 import { DollarSign, Heart, MessageCircle, Share2 } from 'lucide-react'
-import Link from 'next/link'
+import UserCommentDialog from '../user-profile/user-comment-dialog'
 
-export default function PostFooter({ post }: { post: PostSuccessResponse['post'] }) {
+export default function PostFooter({ post, user, value }: { post: PostSuccessResponse['post'], user: User, value?: string }) {
 
     const [isLiking, setIsLiking] = useState(false)
 
@@ -23,11 +23,11 @@ export default function PostFooter({ post }: { post: PostSuccessResponse['post']
                     <IconButton disabled={isLiking} onClick={likePost} Icon={Heart} color={'red'} hasLiked={post.post_likes.has_liked}>
                         {post.post_likes.count}
                     </IconButton>
-                    <Link href={`/post/${post.id}`}>
+                    <UserCommentDialog user={user} value={value} postId={post.id} >
                         <IconButton Icon={MessageCircle} color="blue">
                             {post.post_comments.count}
                         </IconButton>
-                    </Link>
+                    </UserCommentDialog>
                     {post.donation_goal && <IconButton Icon={DollarSign} color="green" />}
                 </div>
                 <div>

@@ -1,9 +1,14 @@
 'use server'
-
-import { axiosInstance } from "@/utils/axios-instance"
 import { getAuthUser } from "@/utils/getAuthUser"
 import { revalidatePath } from "next/cache"
-import { json } from "stream/consumers"
+
+type Payload = {
+    id?: number
+    user_id: number
+    post_id: number
+    parent_id?: number
+    content: string
+}
 
 export async function getPost(id: number) {
 
@@ -48,7 +53,7 @@ export async function getPostComments(postId: number): Promise<{ comments: Comme
     }
 }
 
-export async function storeComment(data: FormData): Promise<void> {
+export async function storeComment(data: Payload): Promise<void> {
     try {
         const { token } = await getAuthUser();
 
@@ -59,11 +64,7 @@ export async function storeComment(data: FormData): Promise<void> {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
-            body: JSON.stringify({
-                user_id: Number(data.get('user_id')),
-                post_id: Number(data.get('post_id')),
-                content: data.get('content')
-            })
+            body: JSON.stringify(data)
         });
 
         if (!response.ok) {
@@ -71,7 +72,7 @@ export async function storeComment(data: FormData): Promise<void> {
             throw new Error(`Failed to store comment: ${response.status} ${response.statusText} - ${errorDetails}`);
         }
 
-        revalidatePath(`/post/${Number(data.get('post_id'))}`);
+        revalidatePath(`/post/${data.post_id}`);
     } catch (error) {
         console.error('Error storing comment:', error);
         throw error;

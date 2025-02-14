@@ -34,13 +34,13 @@ class PostController extends Controller
             ], $e->getCode());
         }
     }
-
     public function storeLike(Request $request)
     {
         $data = $request->validate([
             'post_id' => 'required',
             'user_id' => 'required'
         ]);
+
         $exists = PostLikes::where('post_id', $data['post_id'])->where('user_id', $data['user_id'])->first();
         if ($exists) {
             $exists->delete();
@@ -72,7 +72,6 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-
         return new PostResource($post);
     }
 

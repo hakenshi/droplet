@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -21,10 +22,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('posts')->group(function () {
         Route::get('{username}', [PostController::class, 'showUserPosts']);
         Route::get('liked/{username}', [PostController::class, 'showUserLikedPosts']);
-        Route::get('{post}', [PostController::class, 'show']);
         Route::get('index', [PostController::class, 'index']);
         Route::post('store', [PostController::class, 'store']);
         Route::post('like', [PostController::class, 'storeLike']);
+        Route::post('comment', [CommentController::class, 'store']);
+        Route::get('show/{post}', [PostController::class, 'show']);
         Route::patch('{post}', [PostController::class, 'update']);
         Route::delete('{post}', [PostController::class, 'destroy']);
     });

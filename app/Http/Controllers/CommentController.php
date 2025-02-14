@@ -20,7 +20,15 @@ class CommentController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'user_id' => 'required|integer|exists:users,id',
+            'post_id' => 'required|integer|exists:posts,id',
+            'content' => 'required|string',
+        ]);
+
+        Comment::create($data);
+
+        response()->json([], 201);
     }
 
     /**

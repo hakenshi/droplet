@@ -28,6 +28,7 @@ class PostResource extends JsonResource
                 'post_images' => $this->postImages ? $this->postImages->map(fn($item) => $item->url)->toArray() : null,
                 'post_comments' => [
                     'count' => $this->comments->count(),
+                    'comments' => $this->comments()->where('parent_id', null)->get(),
                 ],
                 'post_likes' => [
                     'count' => $this->likes->count(),

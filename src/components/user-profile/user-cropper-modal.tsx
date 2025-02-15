@@ -6,13 +6,14 @@ import Cropper, { Area } from "react-easy-crop"
 import { Button } from '../ui/button'
 import { Slider } from '../ui/slider'
 
-interface UserCropperModalProps {
-    state: boolean
-    setState: VoidFunction
+interface ImageCropperModalProps {
+    dialogState: boolean
+    setDialogState: VoidFunction
     image: string
+    onImageCropComplete: (croppedImage: string) => void
 }
 
-export default function UserCropperModal({ setState, state, image}: UserCropperModalProps) {
+export default function ImageCopperModal({ setDialogState, dialogState, image, onImageCropComplete }: ImageCropperModalProps) {
 
     const [crop, setCrop] = useState({ x: 0, y: 0 })
     const [zoom, setZoom] = useState(1)
@@ -22,20 +23,102 @@ export default function UserCropperModal({ setState, state, image}: UserCropperM
 
     useEffect(() => {
         if (image) {
-            setIsLoaded(false); // Reseta o estado
+            setIsLoaded(false);
             setTimeout(() => {
-                setRatio(1536/384)
+                setRatio(12 / 3)
                 setIsLoaded(true)
-            }, 200); // Força um pequeno delay para garantir o re-render
+            }, 200);
         }
     }, [image]);
 
-    const onCropComplete = (croppedAreaPercentage: Area, croppedAreadPixels: Area) => {
-        console.log(croppedAreadPixels)
+    const onCropComplete = (_: Area, croppedAreadPixels: Area) => {
+        setCroppedArea(croppedAreadPixels)
     }
 
+    const createImage = (url: string): Promise<HTMLImageElement> => {
+
+        return new Promise((resolve, reject) => {
+            const image = new Image()
+            image.addEventListener('load', () => {
+                console.log("carregando image")
+                resolve(image)
+            })
+            image.addEventListener('error', () => {
+                console.log("erro ao carregar a imagem")
+                reject(image)
+            })
+            image.src = url
+        })
+    }
+
+    const getCroppedImage = async (imageSrc: string, pixelCrop: Area) => {
+
+        try {
+            const image = await createImage(imageSrc)
+            const canvas = document.createElement('canvas')
+            const ctx = canvas.getContext('2d')
+
+            if (!ctx) {
+                throw new Error('Canvas context was not found.')
+            }
+
+            canvas.width = pixelCrop.width
+            canvas.height = pixelCrop.height
+
+            ctx.drawImage(
+                image,
+                pixelCrop.x,
+                pixelCrop.y,
+                pixelCrop.width,
+                pixelCrop.height,
+                0,
+                0,
+                pixelCrop.width,
+                pixelCrop.height,
+            )
+
+            return new Promise((resolve, reject) => {
+                canvas.toBlob((blob) => {
+                    if (!blob) {
+                        reject(new Error('Canvas is empty'))
+                        return;
+                    }
+
+                    const reader = new FileReader()
+
+                    reader.onloadend = () => resolve(reader.result as string)
+                    reader.readAsDataURL(blob)
+
+                }, 'images/jpg')
+            })
+        }
+        catch (e) {
+            console.log(e)
+        }
+    }
+
+    const handleSave = async () => {
+
+        if (!croppedArea || !image) {
+            console.log("banana")
+            console.log(croppedArea)
+            console.log(image)
+            return
+        }
+        try {
+            const croppedImage = await getCroppedImage(image, croppedArea) as string
+            console.log(croppedImage)
+            onImageCropComplete(croppedImage)
+            setDialogState()
+        }
+        catch (e) {
+            console.error("Algo deu errado", e)
+        }
+    }
+
+
     return (
-        <Dialog onOpenChange={setState} open={state}>
+        <Dialog onOpenChange={setDialogState} open={dialogState}>
             <DialogContent className="w-full max-w-4xl">
                 <DialogHeader>
                     <DialogTitle>Cortar Imagem</DialogTitle>
@@ -81,7 +164,7 @@ export default function UserCropperModal({ setState, state, image}: UserCropperM
                     <div className="flex flex-col w-full gap-5">
                         <div className='w-11/12'>
                             <Slider
-                                defaultValue={[zoom]}
+                                value={[zoom]}
                                 max={3}
                                 step={0.1}
                                 min={1}
@@ -90,8 +173,8 @@ export default function UserCropperModal({ setState, state, image}: UserCropperM
                             />
                         </div>
                         <div className='flex justify-end gap-5'>
-                            <Button >Salvar</Button>
-                            <Button onClick={setState}>Cancelar</Button>
+                            <Button onClick={handleSave}>Salvar</Button>
+                            <Button onClick={setDialogState}>Cancelar</Button>
                         </div>
                     </div>
                 </DialogFooter>

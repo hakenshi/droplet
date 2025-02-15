@@ -77,6 +77,14 @@
   border-collapse: collapse;
 }
 
+.no-scroll-bar{
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scroll-bar::-webkit-scrollbar {
+  display: none;
+}
+
 /* HTML: <div class="loader"></div> */
 .loader {
   width: 50px;

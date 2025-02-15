@@ -1,18 +1,19 @@
 import UserEditProfileDialog from '@/components/user-profile/user-edit-profile-dialog'
 import UserProfileTabs from '@/components/user-profile/user-profile-tabs'
-import { getAuthUser } from '@/utils/getAuthUser'
 import Image from 'next/image'
 import React from 'react'
-import { getUserLikedPosts, getUserPosts } from './actions'
+import { getUserLikedPosts, getUserPosts, getUserProfile } from '../actions'
 
-export default async function ProfilePage() {
+export default async function ProfilePage({ params }: { params: { username: string } }) {
 
-    const { user, token } = await getAuthUser()
-    const { posts } = await getUserPosts(token, user.username)
-    const {likedPosts} = await getUserLikedPosts(token, user.username)
+    const { username } = await params
+    const user = await getUserProfile(username)
+    const { posts } = await getUserPosts(username)
+
+    const { likedPosts } = await getUserLikedPosts(user.username)
 
     return (
-        <div className='grid grid-rows-[0.65fr,auto,1fr] max-h-screen overflow-y-scroll px-5'>
+        <div className='grid grid-rows-[0.65fr,auto,1fr] max-h-screen overflow-y-scroll px-5 no-scroll-bar'>
             <div className='flex justify-center h-96'>
                 <Image
                     className='rounded-md'

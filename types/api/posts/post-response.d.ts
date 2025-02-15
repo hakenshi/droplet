@@ -2,6 +2,10 @@ type PostMinimalResponse = {
     post: {
         id: int
         content: string
+        post_replies: {
+            count: number,
+            
+        }
         post_likes: {
             count: number
             has_liked: boolean

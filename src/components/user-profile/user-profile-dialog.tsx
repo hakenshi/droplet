@@ -34,9 +34,6 @@ export default function UserProfileDialog({ user, children, dialogState: dialogS
                 <form action="">
                     <div className='mb-5'>
                         {children}
-                        <div className='relative w-fit flex flex-col justify-center items-start ml-3 -mt-24 z-30'>
-                            <Image className='rounded-full border-4 border-white shadow-md' width={125} height={125} src={"https://pbs.twimg.com/profile_images/1865591206048137216/VQeLKnUq_400x400.jpg"} alt={`${user.name}'s background image`} />
-                        </div>
                     </div>
                     <div className='overflow-y-scroll px-5'>
                         <div className='px-2 py-1'>

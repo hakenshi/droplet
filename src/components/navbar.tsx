@@ -35,7 +35,7 @@ export default async function Navbar() {
     }
 
     return (
-        <header className=" text-white h-full bg-gradient p-5 shadow-xl">
+        <header className=" text-white h-screen bg-gradient p-5 shadow-xl">
             <nav
                 className="min-w-44 grid grid-rows-[0.1fr_auto_0.1fr] h-full gap-5 justify-items-center place-items-center">
                 <Link href={"/"} className="flex items-center gap-2">
@@ -55,7 +55,7 @@ export default async function Navbar() {
                     <li>
                         <Link
                             className='flex items-center gap-2  hover:bg-zinc-100/35 transition-colors px-4 py-2 rounded-full w-full'
-                            href={"/profile"}>
+                            href={`/profile/${user.username}`}>
                             <User />
                             Perfil
                         </Link>

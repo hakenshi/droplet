@@ -13,6 +13,7 @@ import { deletePost } from '@/app/(user)/profile/actions';
 import UserPostDialog from '../user-profile/user-post-dialog';
 import { usePathname } from 'next/navigation';
 import PostBackButton from '../buttons/post-back-button';
+import Link from 'next/link';
 
 type PostHeaderProps = {
     author: User,
@@ -29,19 +30,21 @@ export default function CommentHeader({ author, comment, hasBackButton = false }
     return (
         <CardHeader className={`${removePaddingTop ? 'px-0' : ''}`}>
             <div className='flex items-center gap-3'>
-                {hasBackButton && <PostBackButton />}
-                <Avatar>
-                    <AvatarImage src={"/avatar.png"} alt="avatar" />
-                    <AvatarFallback className="bg-sky-500 text-white">
-                        {author.username.toUpperCase().substring(0, 2)}
-                    </AvatarFallback>
-                </Avatar>
-                <div className='flex justify-between w-full'>
+                <Link className='w-full flex items-center gap-3' href={`/profile/${author.username}`} >
+                    {hasBackButton && <PostBackButton />}
+                    <Avatar>
+                        <AvatarImage src={"/avatar.png"} alt="avatar" />
+                        <AvatarFallback className="bg-sky-500 text-white">
+                            {author.username.toUpperCase().substring(0, 2)}
+                        </AvatarFallback>
+                    </Avatar>
                     <div>
                         <p className='text-zinc-800'>{author.name ? `${author.name} ${author.surname}` : author.username}</p>
                         <p className='text-zinc-500 text-sm'>@{author.username}</p>
                         <PostTime created_at={comment.created_at} />
                     </div>
+                </Link>
+                <div>
                     <div>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>

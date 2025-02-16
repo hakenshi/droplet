@@ -15,20 +15,13 @@ class PostResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'author' => [
-                'id' => $this->user->id,
-                'profile_image' => $this->user->profile_image,
-                'username' => $this->user->username,
-                'name' => $this->user->name,
-                'surname' => $this->user->surname,
-            ],
+            'author' => new AuthorResource($this->user),
             'post' => [
                 'id' => $this->id,
                 'content' => $this->content,
                 'post_images' => $this->postImages ? $this->postImages->map(fn($item) => $item->url)->toArray() : null,
                 'post_comments' => [
                     'count' => $this->comments->count(),
-                    'comments' => $this->comments()->where('parent_id', null)->get(),
                 ],
                 'post_likes' => [
                     'count' => $this->likes->count(),

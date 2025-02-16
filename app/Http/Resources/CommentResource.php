@@ -15,6 +15,8 @@ class CommentResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'author' => new AuthorResource($this->user),
+            'comment' => new PostMinimalResource($this),
         ];
     }
 }

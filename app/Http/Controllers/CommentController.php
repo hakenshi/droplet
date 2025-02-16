@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\CommentResource;
 use App\Models\Comment;
+use App\Models\Post;
 use Illuminate\Http\Request;
 
 class CommentController extends Controller
@@ -10,9 +12,9 @@ class CommentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Post $post)
     {
-        //
+        return CommentResource::collection($post->comments()->orderBy('created_at', 'desc')->get());
     }
 
     /**
@@ -36,7 +38,7 @@ class CommentController extends Controller
      */
     public function show(Comment $comment)
     {
-        //
+
     }
 
     /**

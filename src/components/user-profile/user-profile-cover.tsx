@@ -34,7 +34,7 @@ export default function UserProfileCover({
         'cover': 'w-full h-48',
         'icon': 'size-32',
     }
-
+    
     return (
         <div
             className={`relative ${ratios[ratio]} rounded-md overflow-hidden z-0`}

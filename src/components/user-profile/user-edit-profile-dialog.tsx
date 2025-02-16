@@ -1,104 +1,150 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, RefObject, useEffect, useCallback } from 'react'
 import UserProfileDialog from './user-profile-dialog'
 import UserProfileCover from '@/components/user-profile/user-profile-cover'
 import { Pencil, X } from 'lucide-react'
 import ImageCopperModal from './user-cropper-modal'
 import ProfileImage from './profile-image'
+import { getUserImage } from '@/utils/user'
 
 export default function UserEditProfileDialog({ user }: { user: User }) {
 
-    const [cropModalOpen, setIsCropModalOpen] = useState(false)
+    const [cropCoverModalOpen, setIsCropCoverModalOpen] = useState(false)
+    const [cropProfileModalOpen, setIsCropProfileModalOpen] = useState(false)
     const [editDialog, setEditDialog] = useState(false)
-    const [imageData, setImageData] = useState({
-        cover_image: user.cover_image ?? "",
-        profile_image: user.profile_image ?? "",
+    const [userImageData, setUserImageData] = useState({
+        cover_image: "",
+        profile_image: "",
     })
-    const coverRef = useRef<HTMLInputElement | null>(null)
-    const iconRef = useRef<HTMLInputElement | null>(null)
+    const [imageRatio, setImageRatio] = useState({
+        w: 0,
+        h: 0
+    })
+    const coverRef = useRef<HTMLInputElement>(null)
+    const iconRef = useRef<HTMLInputElement>(null)
 
-    const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, type: "cover" | "profile") => {
         const file = e.target.files?.[0]
         if (file) {
             const img = new Image()
             img.onload = () => {
-                setImageData(i => ({
+                setImageRatio({
+                    h: img.height,
+                    w: img.width
+                })
+                setUserImageData(i => ({
                     ...i,
-                    cover_image: URL.createObjectURL(file)
+                    [`${type}_image`]: URL.createObjectURL(file)
                 }))
-                setIsCropModalOpen(true)
+                if (type === "cover") {
+                    setIsCropCoverModalOpen(true)
+                } else {
+                    setIsCropProfileModalOpen(true)
+                }
+
             }
             img.src = URL.createObjectURL(file)
         }
     }
-    const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        if (file) {
-            const img = new Image()
-            img.onload = () => {
-                setImageData(i => ({
-                    ...i,
-                    profile_image: URL.createObjectURL(file)
-                }))
-                setIsCropModalOpen(true)
-            }
-            img.src = URL.createObjectURL(file)
+    const triggerFileInput = (ref: RefObject<HTMLInputElement | null>) => {
+        if (ref.current) {
+            ref.current.click()
         }
     }
 
-    const setPreviewCoverImage = () => {
-        if (coverRef.current) {
-            coverRef.current.click()
-        }
-    }
-    const setPreviewProfileImage = () => {
-        if (iconRef.current) {
-            iconRef.current.click()
-        }
-    }
-
-
-    const clearImageState = () => {
-        setImageData(i => ({
+    const clearImageState = (type: 'cover' | 'profile', ref: RefObject<HTMLInputElement | null>) => {
+        setUserImageData(i => ({
             ...i,
-            cover_image: user.cover_image ?? ""
+            [`${type}_image`]: user[`${type}_image`] ?? ""
         }))
-        if (coverRef.current) {
-            coverRef.current.value = ""
+        if (ref.current) {
+            ref.current.value = ""
         }
     }
 
-    const handleCloseCropModal = () => {
-        setIsCropModalOpen(false)
+    const resetImageState = useCallback(() => {
+        setUserImageData({
+            cover_image: user.cover_image,
+            profile_image: user.profile_image,
+        })
+        if (coverRef.current) {
+            coverRef.current.value = ''
+        }
+        if (iconRef.current) {
+            iconRef.current.value = ''
+        }
+    }, [user.cover_image, user.profile_image])
+
+    const handleCloseCoverCropModal = () => {
+        setIsCropCoverModalOpen(false)
     }
+
+    const handleCloseProfileCropModal = () => {
+        setIsCropProfileModalOpen(false)
+    }
+
+    useEffect(() => {
+        if (!editDialog) {
+            resetImageState()
+        }
+    }, [editDialog, resetImageState])
 
     return (
         <>
             <UserProfileDialog user={user} dialogState={editDialog} setDialogSate={setEditDialog} >
-                <UserProfileCover ratio='cover' src={imageData.cover_image ? imageData.cover_image : user.cover_image} user={user}>
-                    <input onChange={handleCoverImageChange} className='hidden' type="file" ref={coverRef} />
-                    <button onClick={setPreviewCoverImage} type='button' className="text-white text-xl font-semibold bg-white/50 p-2 rounded-full">
+                <UserProfileCover ratio='cover' src={!userImageData.cover_image ? user.cover_image : userImageData.cover_image} user={user}>
+                    <input name='cover' accept='image/jpg, image/png, image/jpeg, image/gif' onChange={(e) => handleImageChange(e, 'cover')} className='hidden' type="file" ref={coverRef} />
+                    <button onClick={() => triggerFileInput(coverRef)} type='button' className="text-white text-xl font-semibold bg-white/50 p-2 rounded-full">
                         <Pencil />
                     </button>
-                    <button onClick={clearImageState} type='button' className="text-white text-xl font-semibold bg-white/50 p-2 rounded-full">
+                    <button onClick={() => clearImageState('cover', coverRef)} type='button' className="text-white text-xl font-semibold bg-white/50 p-2 rounded-full">
                         <X />
                     </button>
                 </UserProfileCover>
-                <ProfileImage src={imageData.profile_image ? imageData.profile_image : user.profile_image} username={user.username}>
-                    <input onChange={handleProfileImageChange} className='hidden m-0' type="file" ref={iconRef} />
-                    <button onClick={setPreviewProfileImage} type='button' className="text-white text-xl font-semibold p-2 rounded-full">
+                <ProfileImage src={!userImageData.profile_image? user.profile_image : userImageData.profile_image} username={user.username}>
+                    <input name='icon' accept='image/jpg, image/png, image/jpeg, image/gif' onChange={(e) => handleImageChange(e, 'profile')} className='hidden m-0' type="file" ref={iconRef} />
+                    <button onClick={() => triggerFileInput(iconRef)} type='button' className="text-white text-xl font-semibold p-2 rounded-full'">
                         <Pencil />
                     </button>
                 </ProfileImage>
             </UserProfileDialog>
+            {/* FUNDO DA IMAGEM DO USUÁRIO */}
+
             <ImageCopperModal
+                imageRatio='cover'
                 onImageCropComplete={(croppedImage) => {
-                    setImageData(i => ({ ...i, cover_image: croppedImage }))
+                    setUserImageData(i => ({ ...i, cover_image: croppedImage }))
+                    console.log(userImageData.cover_image)
                 }}
-                setDialogState={handleCloseCropModal}
-                dialogState={cropModalOpen}
-                image={imageData.cover_image} />
+                setDialogState={{
+                    clearImageState: () => {
+                        clearImageState('cover', coverRef)
+                        handleCloseCoverCropModal()
+                    }, closeDialog: setIsCropCoverModalOpen
+                }}
+                dialogState={cropCoverModalOpen}
+                image={userImageData.cover_image}
+            />
+
+            {/* ÍCONE DO USUÁRIO */}
+
+            <ImageCopperModal
+                imageRatio='icon'
+                onImageCropComplete={(croppedImage) => {
+                    setUserImageData(i => ({ ...i, profile_image: croppedImage }))
+                    console.log(userImageData.profile_image)
+                }}
+                setDialogState={{
+                    clearImageState: () => {
+                        clearImageState('profile', iconRef)
+                        handleCloseProfileCropModal()
+                    }, closeDialog: setIsCropProfileModalOpen
+                }}
+                imageProportions={imageRatio}
+                dialogState={cropProfileModalOpen}
+                image={userImageData.profile_image}
+            />
         </>
     )
 }

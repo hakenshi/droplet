@@ -16,3 +16,16 @@ export async function getUsers(token: string) {
         users: data
     }
 }
+
+
+export function getUserImage(type: "cover" | "profile", user: User) {
+    const imagePath = user?.[`${type}_image`];
+
+    if (!imagePath) return "/images/default-avatar.png";
+
+    if (imagePath.startsWith("http") || imagePath.startsWith("blob")) {
+        return imagePath;
+    }
+
+    return `${process.env.NEXT_PUBLIC_BASE_API_URL}/storage/${imagePath}`;
+}

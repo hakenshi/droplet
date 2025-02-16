@@ -31,7 +31,7 @@ export default function PostHeader({ author, post, hasBackButton = false }: Post
             <div className='flex items-center gap-3'>
                 {hasBackButton && <PostBackButton />}
                 <Avatar>
-                    <AvatarImage src={"/avatar.png"} alt="avatar" />
+                    <AvatarImage src={author.profile_image} alt="avatar" />
                     <AvatarFallback className="bg-sky-500 text-white">
                         {author.username.toUpperCase().substring(0, 2)}
                     </AvatarFallback>

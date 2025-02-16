@@ -89,7 +89,7 @@ export default async function Navbar() {
                     <DropdownMenuTrigger
                         className="flex items-center gap-5 hover:bg-zinc-100/35 transition-colors duration-200 p-2 rounded-full w-full">
                         <Avatar>
-                            <AvatarImage src={"/avatar.png"} alt="avatar" />
+                            <AvatarImage src={user.profile_image} alt="avatar" />
                             <AvatarFallback className="bg-sky-500 text-white">
                                 {user.username.toUpperCase().substring(0, 2)}
                             </AvatarFallback>

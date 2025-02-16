@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { SetStateAction, useEffect, useState } from 'react'
 import { Dialog, DialogHeader, DialogContent, DialogTitle, DialogFooter } from '../ui/dialog'
 import Cropper, { Area } from "react-easy-crop"
 import { Button } from '../ui/button'
@@ -8,15 +8,35 @@ import { Slider } from '../ui/slider'
 
 interface ImageCropperModalProps {
     dialogState: boolean
-    setDialogState: VoidFunction
+    setDialogState: {
+        clearImageState: VoidFunction,
+        closeDialog: (value: SetStateAction<boolean>) => void
+    }
+    imageRatio: 'cover' | 'icon',
+    imageProportions?: {
+        w: number,
+        h:number
+    }
     image: string
     onImageCropComplete: (croppedImage: string) => void
 }
 
-export default function ImageCopperModal({ setDialogState, dialogState, image, onImageCropComplete }: ImageCropperModalProps) {
+const ratios = {
+    cover: {
+        w: 12,
+        h: 3,
+    },
+    icon: {
+        w: 1,
+        h: 1,
+    }
+}
+
+
+export default function ImageCopperModal({ setDialogState, dialogState, image, onImageCropComplete, imageRatio, imageProportions }: ImageCropperModalProps) {
 
     const [crop, setCrop] = useState({ x: 0, y: 0 })
-    const [zoom, setZoom] = useState(1)
+    const [zoom, setZoom] = useState(0)
     const [ratio, setRatio] = useState(0)
     const [croppedArea, setCroppedArea] = useState<Area | null>(null)
     const [isLoaded, setIsLoaded] = useState(false)
@@ -25,11 +45,13 @@ export default function ImageCopperModal({ setDialogState, dialogState, image, o
         if (image) {
             setIsLoaded(false);
             setTimeout(() => {
-                setRatio(12 / 3)
+                const { w, h } = ratios[imageRatio];
+                setZoom(imageProportions?.w === imageProportions?.h  && imageRatio === "icon" ? 0.59 : 1)
+                setRatio(w / h);
                 setIsLoaded(true)
             }, 200);
         }
-    }, [image]);
+    }, [image, imageProportions, imageProportions?.h, imageProportions?.w, imageRatio]);
 
     const onCropComplete = (_: Area, croppedAreadPixels: Area) => {
         setCroppedArea(croppedAreadPixels)
@@ -89,7 +111,7 @@ export default function ImageCopperModal({ setDialogState, dialogState, image, o
                     reader.onloadend = () => resolve(reader.result as string)
                     reader.readAsDataURL(blob)
 
-                }, 'images/jpg')
+                }, 'image/jpg')
             })
         }
         catch (e) {
@@ -107,9 +129,8 @@ export default function ImageCopperModal({ setDialogState, dialogState, image, o
         }
         try {
             const croppedImage = await getCroppedImage(image, croppedArea) as string
-            console.log(croppedImage)
             onImageCropComplete(croppedImage)
-            setDialogState()
+            setDialogState.closeDialog(false)
         }
         catch (e) {
             console.error("Algo deu errado", e)
@@ -118,13 +139,13 @@ export default function ImageCopperModal({ setDialogState, dialogState, image, o
 
 
     return (
-        <Dialog onOpenChange={setDialogState} open={dialogState}>
+        <Dialog onOpenChange={setDialogState.clearImageState} open={dialogState}>
             <DialogContent className="w-full max-w-4xl">
                 <DialogHeader>
                     <DialogTitle>Cortar Imagem</DialogTitle>
                 </DialogHeader>
 
-                <div className="relative w-full h-[400px]">
+                <div className="relative w-full h-[500px]">
                     {!isLoaded ? (<div className='loader'></div>) : <Cropper
                         image={image}
                         crop={crop}
@@ -137,23 +158,45 @@ export default function ImageCopperModal({ setDialogState, dialogState, image, o
                         cropShape="rect"
                         showGrid={false}
                         restrictPosition={true}
-                        style={{
+                        style={imageRatio === "cover" ? {
                             containerStyle: {
                                 position: 'relative',
-                                width: '100%',
-                                height: '100%',
+                                // width: '100%',
+                                maxHeight: '100%',
                                 background: 'black',
                             },
                             cropAreaStyle: {
                                 border: '2px solid #0ea5e9',
                                 borderRadius: '0',
                                 color: 'rgba(255, 255, 255, 0.5)',
-                                width: "100%",
-                                height: "100%"
+                                maxWidth: "100%",
+                                maxHeight: "100%",
+                                objectFit: "contain"
                             },
                             mediaStyle: {
-                                width: '100%',
-                                height: '100%',
+                                maxWidth: '100%',
+                                // height: "100%",
+                                background: 'black',
+                                objectFit: 'contain',
+                            },
+                        } : {
+                            containerStyle: {
+                                position: 'relative',
+                                maxWidth: '100%',
+                                maxHeight: '100%',
+                                background: 'black',
+                            },
+                            cropAreaStyle: {
+                                border: '2px solid #0ea5e9',
+                                borderRadius: '0',
+                                color: 'rgba(255, 255, 255, 0.5)',
+                                maxWidth: "100%",
+                                maxHeight: "100%",
+                                // objectFit: "contain"
+                            },
+                            mediaStyle: {
+                                // width: '100%',
+                                maxHeight: "100%",
                                 background: 'black',
                                 objectFit: 'contain',
                             },
@@ -173,8 +216,8 @@ export default function ImageCopperModal({ setDialogState, dialogState, image, o
                             />
                         </div>
                         <div className='flex justify-end gap-5'>
-                            <Button onClick={handleSave}>Salvar</Button>
-                            <Button onClick={setDialogState}>Cancelar</Button>
+                            <Button type='button' onClick={handleSave}>Salvar</Button>
+                            <Button type='button' onClick={setDialogState.clearImageState} variant={"destructive"}>Cancelar</Button>
                         </div>
                     </div>
                 </DialogFooter>

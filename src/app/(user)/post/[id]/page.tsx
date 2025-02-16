@@ -30,7 +30,7 @@ export default async function PostPage({ params }: { params: { id: string } }) {
                             <div className='px-10 py-5'>
                                 <div className='pb-5 flex text-zinc-700 text-sm items-center gap-2'>
                                     <Avatar>
-                                        <AvatarImage src={"/avatar.png"} alt="avatar" />
+                                        <AvatarImage src={author.profile_image} alt="avatar" />
                                         <AvatarFallback className="bg-sky-500 text-white">
                                             {user.username.toUpperCase().substring(0, 2)}
                                         </AvatarFallback>

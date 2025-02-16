@@ -13,6 +13,7 @@ interface PostProps {
 }
 
 export default function Post({ author, post, user }: PostProps) {
+
     return (
         <PostContainer postId={post.id}>
             <PostHeader author={author} post={post} />

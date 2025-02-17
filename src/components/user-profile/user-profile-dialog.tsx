@@ -19,8 +19,7 @@ export default function UserProfileDialog({ children, dialogState: dialogState, 
     const submit = async (e:FormEvent) => {
         e.preventDefault()
         const formData = new FormData(e.target as HTMLFormElement)
-        const form = Object.fromEntries(formData.entries())
-        await updateUserProfile(form)
+        await updateUserProfile(formData)
     }
 
     return (

@@ -52,7 +52,7 @@ export default function Login() {
       return
     }
     else {
-      const { status } = await storeToken(data)
+      const { status } = await storeToken(data as AuthSuccessResponse)
 
       if (status === 200) {
         setButtonState('success')

@@ -129,6 +129,7 @@ export default function ImageCopperModal({ setDialogState, dialogState, image, o
         }
         try {
             const croppedImage = await getCroppedImage(image, croppedArea) as string
+            console.log(croppedImage)
             onImageCropComplete(croppedImage)
             setDialogState.closeDialog(false)
         }

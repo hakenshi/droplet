@@ -90,6 +90,30 @@ export default function UserEditProfileDialog({ user }: { user: User }) {
         }
     }, [editDialog, resetImageState])
 
+    const setFileInputFromBase64 = async (ref: RefObject<HTMLInputElement | null>, base64: Base64URLString) => {
+       return await fetch(base64)
+            .then(response => response.blob())
+            .then(blob => {
+                const dt = new DataTransfer()
+                dt.items.add(new File([blob], `image.${blob.type}`, { type: blob.type }))
+                if (ref.current) {
+                    ref.current.files = dt.files
+                }
+            })
+            .catch(e => console.error(e))
+    }
+
+    const updateInputValues = (type: "cover" | 'icon', image: Base64URLString) => {
+        if (type === "cover" && coverRef.current) {
+            setFileInputFromBase64(coverRef, image)
+            // coverRef.current.value = image
+        }
+        if (type === "icon" && iconRef.current) {
+            setFileInputFromBase64(iconRef, image)
+            // iconRef.current.value = image
+        }
+    }
+
     return (
         <>
             <UserProfileDialog user={user} dialogState={editDialog} setDialogSate={setEditDialog} >
@@ -102,7 +126,7 @@ export default function UserEditProfileDialog({ user }: { user: User }) {
                         <X />
                     </button>
                 </UserProfileCover>
-                <ProfileImage src={!userImageData.profile_image? user.profile_image : userImageData.profile_image} username={user.username}>
+                <ProfileImage src={!userImageData.profile_image ? user.profile_image : userImageData.profile_image} username={user.username}>
                     <input name='icon' accept='image/jpg, image/png, image/jpeg, image/gif' onChange={(e) => handleImageChange(e, 'profile')} className='hidden m-0' type="file" ref={iconRef} />
                     <button onClick={() => triggerFileInput(iconRef)} type='button' className="text-white text-xl font-semibold p-2 rounded-full'">
                         <Pencil />
@@ -114,8 +138,8 @@ export default function UserEditProfileDialog({ user }: { user: User }) {
             <ImageCopperModal
                 imageRatio='cover'
                 onImageCropComplete={(croppedImage) => {
+                    updateInputValues('cover', croppedImage)
                     setUserImageData(i => ({ ...i, cover_image: croppedImage }))
-                    console.log(userImageData.cover_image)
                 }}
                 setDialogState={{
                     clearImageState: () => {
@@ -132,8 +156,8 @@ export default function UserEditProfileDialog({ user }: { user: User }) {
             <ImageCopperModal
                 imageRatio='icon'
                 onImageCropComplete={(croppedImage) => {
+                    updateInputValues("icon", croppedImage)
                     setUserImageData(i => ({ ...i, profile_image: croppedImage }))
-                    console.log(userImageData.profile_image)
                 }}
                 setDialogState={{
                     clearImageState: () => {

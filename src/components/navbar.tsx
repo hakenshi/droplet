@@ -29,6 +29,7 @@ export default async function Navbar() {
 
         if (respose.status === 204) {
             cookie.delete("token")
+            cookie.delete("user")
             revalidateTag('auth')
             redirect("/")
         }

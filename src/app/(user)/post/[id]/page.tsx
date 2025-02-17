@@ -7,7 +7,6 @@ import { getAuthUser } from '@/utils/getAuthUser'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import CommentForm from '@/components/comment/comment-form'
 import Comment from '@/components/comment/comment'
-import CommentContainer from '@/components/comment/comment-container'
 import { Card, CardContent } from '@/components/ui/card'
 
 export default async function PostPage({ params }: { params: { id: string } }) {

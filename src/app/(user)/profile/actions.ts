@@ -1,7 +1,9 @@
 'use server'
 
 import { getAuthUser } from "@/utils/getAuthUser";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidateTag } from "next/cache";
+import jwt from 'jsonwebtoken';
+import { cookies } from "next/headers";
 
 type Payload = {
     id?: number
@@ -11,9 +13,9 @@ type Payload = {
 
 export async function getUserProfile(username: string): Promise<User> {
 
-    const {user, token} = await getAuthUser()
+    const { user, token } = await getAuthUser()
 
-    if(username === user.username){
+    if (username === user.username) {
         return user
     }
 
@@ -30,41 +32,40 @@ export async function getUserProfile(username: string): Promise<User> {
     return data
 
 }
-type UpdatePayload = {
-    name?: string
-    surname?: string
-    bio?: string
-    icon?: File
-    cover?: File
-}
 
-export async function updateUserProfile(data: UpdatePayload) {
+export async function updateUserProfile(data: FormData) {
 
     const { token, user } = await getAuthUser()
+    const cookie = await cookies()
+    const coverImage = data.get('cover') as File
+    const profileImage = data.get('icon') as File
+    if(coverImage.size <= 0){
+        data.delete('cover')
+    }
+    if(profileImage.size <= 0){
+        data.delete('icon')
+    }
 
     try {
-        const formData = new FormData();
-        Object.entries(data).forEach(([key, value]) => {
-            if (value !== undefined) {
-                formData.append(key, value);
-            }
-        });
-
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/${user.id}?_method=PATCH`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
             },
-            body: formData
+            body: data
         });
 
         if (!response.ok) {
-            const errorData = await response.json(); // Attempt to get error details
+            const errorData = await response.text();
             throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
         }
 
-        const updatedUser: User = await response.json();
-        revalidatePath(`/profile/${user.username}`)
+        const updatedUser = await response.json();
+
+        console.log(updatedUser)
+        
+        cookie.set('user', JSON.stringify(updatedUser.data), {httpOnly: true, sameSite: 'strict' })
+        
         return updatedUser;
     } catch (error) {
         console.error("Error updating user profile:", error);
@@ -74,7 +75,7 @@ export async function updateUserProfile(data: UpdatePayload) {
 
 export async function getUserPosts(username: string) {
 
-    const {token} = await getAuthUser()
+    const { token } = await getAuthUser()
 
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/${username}`, {
         next: {
@@ -97,7 +98,7 @@ export async function getUserPosts(username: string) {
 
 export async function getUserLikedPosts(username: string) {
 
-    const {token} = await getAuthUser()
+    const { token } = await getAuthUser()
 
     const respose = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/liked/${username}`, {
         next: {

@@ -16,14 +16,16 @@ class PostMinimalResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'post_id' => $this->post->id,
+            'parent_id' => $this->parent_id ?? null,
             'content' => $this->content,
             'post_replies' => [
                 'count' => $this->replies->count(),
-                'replies' => $this->replies ? PostResource::collection($this->replies) : null,
+                'replies' => $this->replies,
             ],
             'post_likes' => [
-                'count' => $this->post->likes->count(),
-                'has_liked' => $this->post->likes()->where('user_id', \request()->user()->id)->exists(),
+                'count' => $this->commentLikes->count(),
+                'has_liked' => $this->commentLikes()->where('user_id', \request()->user()->id)->exists(),
             ],
             'created_at' => $this->created_at,
         ];

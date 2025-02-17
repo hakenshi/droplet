@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\CommentResource;
 use App\Models\Comment;
+use App\Models\CommentLike;
 use App\Models\Post;
 use Illuminate\Http\Request;
 
@@ -14,7 +15,7 @@ class CommentController extends Controller
      */
     public function index(Post $post)
     {
-        return CommentResource::collection($post->comments()->orderBy('created_at', 'desc')->get());
+        return CommentResource::collection($post->comments()->whereNull('parent_id')->orderBy('created_at', 'desc')->get());
     }
 
     /**
@@ -31,6 +32,33 @@ class CommentController extends Controller
         Comment::create($data);
 
         response()->json([], 201);
+    }
+
+    public function storeLike(Comment $comment, Request $request)
+    {
+        $data = $request->validate([
+            'user_id' => 'required|integer|exists:users,id',
+        ]);
+        $data['comment_id'] = $comment->id;
+        CommentLike::create($data);
+
+        return response()->json([], 201);
+
+    }
+
+    public function storeReply(Request $request, Comment $comment)
+    {
+        $data = $request->validate([
+            'user_id' => 'required|integer|exists:users,id',
+            'post_id' => 'required|integer|exists:posts,id',
+            'content' => 'required|string',
+        ]);
+
+        $data['parent_id'] = $comment->id;
+
+        $comment->create($data);
+
+        return response()->json([], 201);
     }
 
     /**

@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Http\Request;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -61,6 +61,20 @@ class User extends Authenticatable
     }
     public function likedPosts(): BelongsToMany{
         return $this->belongsToMany(Post::class, 'post_likes')->withTimestamps();
+    }
+
+    public static function updateProfileImage(Request $request, string $fileName, string $path){
+
+        $user = $request->user();
+
+        if ($request->hasFile($fileName)) {
+            $column = $fileName == "icon" ? "profile_image" : "cover_image";
+            if (!empty($user->$column)){
+                Storage::disk('public')->delete($user->$column);
+            }
+            $imagePath = $request->file($fileName)->store($path, 'public');
+        }
+        return !empty($imagePath) ? $imagePath : null;
     }
 
 }

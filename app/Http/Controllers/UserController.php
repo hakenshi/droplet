@@ -41,16 +41,16 @@ class UserController extends Controller
                 'name' => 'nullable|string|max:255',
                 'surname' => 'nullable|string|max:255',
                 'bio' => 'nullable|string|max:255',
-                'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'cover' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+                'cover' => 'nullable|image|mimes:jpeg,png,jpg,gif',
             ]);
 
-            if ($request->hasFile('icon')) {
-                $iconPath = $request->file('icon')->store('icons', 'public');
+            if ($request->hasFile('icon') && $request->file('icon')->isValid()) {
+                $iconPath = User::updateProfileImage($request, "icon", "icons");
             }
 
-            if ($request->hasFile('cover')) {
-                $coverPath = $request->file('cover')->store('covers', 'public');
+            if ($request->hasFile('cover') && $request->file('cover')->isValid()) {
+                $coverPath = User::updateProfileImage($request, "cover", "covers");
             }
 
             $user->update([

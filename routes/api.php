@@ -21,15 +21,16 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::prefix('posts')->group(function () {
+        Route::get('index', [PostController::class, 'index']);
         Route::get('{username}', [PostController::class, 'showUserPosts']);
         Route::get('liked/{username}', [PostController::class, 'showUserLikedPosts']);
-        Route::get('index', [PostController::class, 'index']);
         Route::post('store', [PostController::class, 'store']);
         Route::post('like', [PostController::class, 'storeLike']);
         Route::prefix('comment')->group(function () {
             Route::post('/', [CommentController::class, 'store']);
             Route::post('reply/{comment}', [CommentController::class, 'storeReply']);
             Route::post('like/{comment}', [CommentController::class, 'storeLike']);
+            Route::delete('{comment}', [CommentController::class, 'destroy']);
         });
         Route::get('{post}/comment', [CommentController::class, 'index']);
         Route::get('show/{post}', [PostController::class, 'show']);

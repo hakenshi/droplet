@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('post_donations', function (Blueprint $table) {
-            $table->id();
+            $table->bigInteger('id')->primary()->unique();
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('post_id')->constrained('posts');
             $table->decimal('amount', 10, 2);

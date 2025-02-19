@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('comment_likes', function (Blueprint $table) {
-            $table->id();
+            $table->bigInteger('id')->primary()->unique();
             $table->foreignId('comment_id')->constrained();
             $table->foreignId('user_id')->constrained();
             $table->timestamps();

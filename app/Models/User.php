@@ -63,6 +63,10 @@ class User extends Authenticatable
         return $this->belongsToMany(Post::class, 'post_likes')->withTimestamps();
     }
 
+    public function likedComments(): BelongsToMany{
+        return $this->belongsToMany(Comment::class, 'comment_likes')->withTimestamps();
+    }
+
     public static function updateProfileImage(Request $request, string $fileName, string $path){
 
         $user = $request->user();

@@ -12,12 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('comments', function (Blueprint $table) {
-            $table->id();
+            $table->bigInteger('id')->primary()->unique();
             $table->foreignId('post_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('parent_id')->nullable()->constrained('comments')->onDelete('cascade');
             $table->text('content');
             $table->timestamps();
+        });
+
+        Schema::table('comments', function (Blueprint $table) {
+            $table->bigInteger('parent_id')->nullable()->after('user_id');
+            $table->foreign('parent_id')->references('id')->on('comments')->cascadeOnDelete();
         });
     }
 

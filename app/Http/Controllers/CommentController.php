@@ -40,9 +40,15 @@ class CommentController extends Controller
             'user_id' => 'required|integer|exists:users,id',
         ]);
         $data['comment_id'] = $comment->id;
-        CommentLike::create($data);
+        $exists = CommentLike::where('comment_id', $comment->id)->where('user_id', $data['user_id'])->first();
+        if ($exists) {
+            $exists->delete();
+            return new CommentResource($comment);
+        } else {
+            CommentLike::create($data);
+            return new CommentResource($comment);
+        }
 
-        return response()->json([], 201);
 
     }
 
@@ -74,7 +80,14 @@ class CommentController extends Controller
      */
     public function update(Request $request, Comment $comment)
     {
-        //
+        $data = $request->validate([
+            'user_id' => 'required|integer|exists:users,id',
+            'post_id' => 'required|integer|exists:posts,id',
+            'content' => 'required|string',
+        ]);
+
+        $comment->update($data);
+        return new CommentResource($comment);
     }
 
     /**
@@ -82,6 +95,7 @@ class CommentController extends Controller
      */
     public function destroy(Comment $comment)
     {
-        //
+        $comment->delete();
+        return response()->json([], 204);
     }
 }

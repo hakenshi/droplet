@@ -6,6 +6,7 @@ use App\Http\Resources\CommentResource;
 use App\Models\Comment;
 use App\Models\CommentLike;
 use App\Models\Post;
+use Godruoyi\Snowflake\Snowflake;
 use Illuminate\Http\Request;
 
 class CommentController extends Controller
@@ -21,25 +22,30 @@ class CommentController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request, Snowflake $snowflake)
     {
+        $data['id'] = $snowflake->id();
         $data = $request->validate([
             'user_id' => 'required|integer|exists:users,id',
             'post_id' => 'required|integer|exists:posts,id',
             'content' => 'required|string',
         ]);
 
+
         Comment::create($data);
 
         response()->json([], 201);
     }
 
-    public function storeLike(Comment $comment, Request $request)
+    public function storeLike(Comment $comment, Request $request, Snowflake $snowflake)
     {
+        $data['id'] = $snowflake->id();
         $data = $request->validate([
             'user_id' => 'required|integer|exists:users,id',
         ]);
+
         $data['comment_id'] = $comment->id;
+
         $exists = CommentLike::where('comment_id', $comment->id)->where('user_id', $data['user_id'])->first();
         if ($exists) {
             $exists->delete();

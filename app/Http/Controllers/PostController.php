@@ -8,6 +8,7 @@ use App\Http\Resources\PostResource;
 use App\Models\Post;
 use App\Models\PostLikes;
 use App\Models\User;
+use Godruoyi\Snowflake\Snowflake;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
@@ -23,10 +24,12 @@ class PostController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(PostRequest $request)
+    public function store(PostRequest $request, Snowflake $snowflake)
     {
         try {
             $data = $request->validated();
+            $data['id'] = $snowflake->id();
+
             $post = Post::create($data);
             return response()->json($post, 201);
         } catch (\Exception $e) {
@@ -35,12 +38,15 @@ class PostController extends Controller
             ], $e->getCode());
         }
     }
-    public function storeLike(Request $request)
+    public function storeLike(Request $request, Snowflake $snowflake)
     {
         $data = $request->validate([
             'post_id' => 'required',
             'user_id' => 'required'
         ]);
+
+        $data['id'] = $snowflake->id();
+
         $exists = PostLikes::where('post_id', $data['post_id'])->where('user_id', $data['user_id'])->first();
         if ($exists) {
             $exists->delete();

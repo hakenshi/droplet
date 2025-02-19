@@ -1,14 +1,19 @@
 import jwt from 'jsonwebtoken';
-import { cookies } from "next/headers"
+import { getSession } from './session';
+
+let cachedUser: AuthSuccessResponse
 
 export async function getAuthUser() {
-    
-    const cookie = await cookies()
-    const jwtToken = cookie.get('token')?.value as string
-    const jwtUser = cookie.get('user')?.value as string
-    const token = jwt.decode(jwtToken) as string
-    const user = JSON.parse(jwtUser) as User
 
-    return { user, token }
+    if (cachedUser) return cachedUser
+
+    const session = await getSession()
+
+    const token = jwt.decode(session.token) as string
+    const user = JSON.parse(session.user) as User
+
+    cachedUser = { user, token }
+
+    return cachedUser
 }
 

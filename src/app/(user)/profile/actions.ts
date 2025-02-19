@@ -4,6 +4,7 @@ import { getAuthUser } from "@/utils/getAuthUser";
 import { revalidateTag } from "next/cache";
 import jwt from 'jsonwebtoken';
 import { cookies } from "next/headers";
+import { updateAuthUser } from "@/utils/session";
 
 type Payload = {
     id?: number
@@ -62,9 +63,7 @@ export async function updateUserProfile(data: FormData) {
 
         const updatedUser = await response.json();
 
-        console.log(updatedUser)
-        
-        cookie.set('user', JSON.stringify(updatedUser.data), {httpOnly: true, sameSite: 'strict' })
+        await updateAuthUser(updatedUser)
         
         return updatedUser;
     } catch (error) {

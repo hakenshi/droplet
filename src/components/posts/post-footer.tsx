@@ -5,6 +5,7 @@ import { CardFooter } from '../ui/card'
 import IconButton from '../buttons/icon-button'
 import { DollarSign, Heart, MessageCircle, Share2 } from 'lucide-react'
 import UserCommentDialog from '../user-profile/user-comment-dialog'
+import UserPostDialog from '../user-profile/user-post-dialog'
 
 export default function PostFooter({ post, user, value }: { post: PostSuccessResponse['post'], user: User, value?: string }) {
 
@@ -23,11 +24,11 @@ export default function PostFooter({ post, user, value }: { post: PostSuccessRes
                     <IconButton disabled={isLiking} onClick={likePost} Icon={Heart} color={'red'} hasLiked={post.post_likes.has_liked}>
                         {post.post_likes.count}
                     </IconButton>
-                    <UserCommentDialog user={user} value={value} postId={post.id} >
+                    <UserPostDialog user={user} value={value} >
                         <IconButton Icon={MessageCircle} color="blue">
                             {post.post_comments.count}
                         </IconButton>
-                    </UserCommentDialog>
+                    </UserPostDialog>
                     {post.donation_goal && <IconButton Icon={DollarSign} color="green" />}
                 </div>
                 <div>

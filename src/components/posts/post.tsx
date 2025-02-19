@@ -18,6 +18,7 @@ export default function Post({ author, post, user }: PostProps) {
         <PostContainer postId={post.id}>
             <PostHeader author={author} post={post} />
             <Link href={`/post/${post.id}`}>
+                {post.post_type}
                 <PostContent post={post} />
             </Link>
             <PostFooter user={user} post={post} />

@@ -186,8 +186,7 @@ export async function storeLikePost(postId: number) {
             'Authorization': `Bearer ${token}`,
         },
     })
-
-    revalidateTag('posts')
+    revalidateTag('comments')
 }
 
 export async function deletePost(postId: number) {

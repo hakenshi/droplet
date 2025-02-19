@@ -133,6 +133,7 @@ export default function UserEditProfileDialog({ user }: { user: User }) {
                     </button>
                 </ProfileImage>
             </UserProfileDialog>
+            
             {/* FUNDO DA IMAGEM DO USUÁRIO */}
 
             <ImageCopperModal

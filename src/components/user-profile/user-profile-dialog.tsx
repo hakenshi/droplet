@@ -16,10 +16,11 @@ interface UserProfileDialogProps {
 
 export default function UserProfileDialog({ children, dialogState: dialogState, setDialogSate: setDialogState }: UserProfileDialogProps) {
 
-    const submit = async (e:FormEvent) => {
+    const submit = async (e: FormEvent) => {
         e.preventDefault()
         const formData = new FormData(e.target as HTMLFormElement)
         await updateUserProfile(formData)
+        setDialogState(false)
     }
 
     return (

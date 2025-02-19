@@ -14,6 +14,7 @@ import UserPostDialog from '../user-profile/user-post-dialog';
 import { usePathname } from 'next/navigation';
 import PostBackButton from '../buttons/post-back-button';
 import Link from 'next/link';
+import UserCommentDialog from '../user-profile/user-comment-dialog';
 
 type PostHeaderProps = {
     author: User,
@@ -79,11 +80,11 @@ export default function CommentHeader({ author, comment, hasBackButton = false }
                                         </DialogFooter>
                                     </DialogContent>
                                 </Dialog>
-                                <UserPostDialog user={author} value={comment.content} id={comment.id}>
+                                <UserCommentDialog parentId={comment.parent_id} postId={comment.post_id} isReplying={!comment.parent_id ? true : false} user={author} value={comment.content} commentId={comment.id}>
                                     <IconButton className='p-5' Icon={Pencil} color="blue" hasHoverEffect={false}>
                                         Editar
                                     </IconButton>
-                                </UserPostDialog>
+                                </UserCommentDialog>
                                 <IconButton className='p-5' Icon={AlertCircle} color="yellow" hasHoverEffect={false}>
                                     Denunciar
                                 </IconButton>

@@ -46,14 +46,15 @@ export default function UserPostDialog({ id, user, value, children }: UserPostPr
                     <DialogTitle className=''>
                         <div className='flex items-center gap-2'>
                             <Avatar className='size-10'>
-                                <AvatarImage src={"/avatar.png"} alt="avatar" />
+                                <AvatarImage src={user.profile_image} alt="avatar" />
                                 <AvatarFallback className="bg-sky-500 text-white">
                                     {user.username.toUpperCase().substring(0, 2)}
                                 </AvatarFallback>
                             </Avatar>
-                            <p className='font-normal text-md'>
-                                {user.username}
-                            </p>
+                            <div className='font-normal text-md'>
+                               <p>{user.name? `${user.name} ${user.surname}` : user.username}</p>
+                               <p className='text-sm text-zinc-500'>@{user.username}</p>
+                            </div>
                         </div>
                     </DialogTitle>
                 </DialogHeader>

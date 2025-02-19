@@ -11,29 +11,11 @@ import { redirect } from 'next/navigation'
 
 import { revalidateTag } from 'next/cache'
 import UserPostDialog from "@/components/user-profile/user-post-dialog";
+import { handleLogout } from '@/app/(auth)/login/actions'
 
 export default async function Navbar() {
 
     const { user, token } = await getAuthUser()
-
-    const handleLogout = async () => {
-        'use server'
-        const cookie = await cookies()
-        const respose = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/logout`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-            }
-        })
-
-        if (respose.status === 204) {
-            cookie.delete("token")
-            cookie.delete("user")
-            revalidateTag('auth')
-            redirect("/")
-        }
-    }
 
     return (
         <header className=" text-white h-screen bg-gradient p-5 shadow-xl">
@@ -104,7 +86,6 @@ export default async function Navbar() {
                             <span className="text-zinc-800">Perfil</span>
                         </Link>
                         <Logout user={user} logoutFn={handleLogout} />
-
                     </DropdownMenuContent>
                 </DropdownMenu>
             </nav>

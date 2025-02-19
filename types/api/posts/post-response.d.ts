@@ -1,6 +1,8 @@
 type PostMinimalResponse = {
     post: {
         id: int
+        post_id: number
+        parent_id?: int
         content: string
         post_replies: {
             count: number,
@@ -17,6 +19,7 @@ type PostMinimalResponse = {
 type PostSuccessResponse = {
     author: User
     post: Post & {
+        post_type: "comment" | "post"
         post_comments: {
             count: number
         }

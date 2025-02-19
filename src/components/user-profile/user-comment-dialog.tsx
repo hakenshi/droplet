@@ -13,9 +13,9 @@ interface PostFormData {
 }
 
 type UserPostProps = {
-    commentId: number,
-    postId: number,
-    parentId: number
+    commentId: string,
+    postId: string,
+    parentId?: string
     isReplying: boolean,
     user: User,
     value?: string
@@ -25,8 +25,6 @@ type UserPostProps = {
 export default function UserCommentDialog({ commentId, postId, parentId, user, value, children, isReplying }: UserPostProps) {
 
     const [isOpen, setIsOpen] = useState<boolean>(false)
-
-    console.log(value)
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault()

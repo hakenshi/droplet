@@ -13,21 +13,21 @@ import { MessageCircleOff } from 'lucide-react'
 export default async function PostPage({ params }: { params: { id: string } }) {
     const { id } = await params
 
-    const { post, author } = await getPost(parseInt(id))
+    const { post, author } = await getPost(id)
 
     const { user } = await getAuthUser()
 
-    const { comments } = await getPostComments(post.id)
+    const { comments } = await getPostComments(post.id_string)
     
-
-
     return (
         <div className='p-5 h-screen overflow-scroll pb-20 no-scroll-bar'>
             <Card>
                 <CardContent className=''>
-                    <PostHeader hasBackButton={true} author={author} post={post} />
+                    <PostHeader user={user} hasBackButton={true} author={author} post={post} />
                     <PostContent post={post} />
+
                     <PostFooter user={user} post={post} />
+
                     <div className="border-y">
                         <div className='px-10 py-5'>
                             <div className='pb-5 flex text-zinc-700 text-sm items-center gap-2'>
@@ -47,7 +47,7 @@ export default async function PostPage({ params }: { params: { id: string } }) {
                     </div>
                     <div className='p-5'>
                         <h2 className='text-xl text-zinc-800'>Comentários</h2>
-                        {comments.length > 0 ? comments.map(({ comment, author }, index) => (
+                        {comments && comments.length > 0 ? comments.map(({ comment, author }, index) => (
                             <Comment user={user} key={index} author={author} comment={comment} />
                         )) : (<div className='flex  flex-col items-center gap-5'>
                             <MessageCircleOff className='text-zinc-500' />

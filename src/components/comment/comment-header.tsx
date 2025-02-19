@@ -10,7 +10,6 @@ import { AlertCircle, Ellipsis, Pencil, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { deletePost } from '@/app/(user)/profile/actions';
-import UserPostDialog from '../user-profile/user-post-dialog';
 import { usePathname } from 'next/navigation';
 import PostBackButton from '../buttons/post-back-button';
 import Link from 'next/link';
@@ -72,7 +71,7 @@ export default function CommentHeader({ author, comment, hasBackButton = false }
                                         </div>
                                         <DialogFooter>
                                             <div className='flex justify-end gap-3'>
-                                                <Button onClick={async () => { await deletePost(comment.id); setIsOpen(false); }} variant={'destructive'}>Excluir</Button>
+                                                <Button onClick={async () => { await deletePost(comment.id_string); setIsOpen(false); }} variant={'destructive'}>Excluir</Button>
                                                 <Button onClick={() => setIsOpen(false)}>
                                                     Cancelar
                                                 </Button>
@@ -80,7 +79,7 @@ export default function CommentHeader({ author, comment, hasBackButton = false }
                                         </DialogFooter>
                                     </DialogContent>
                                 </Dialog>
-                                <UserCommentDialog parentId={comment.parent_id} postId={comment.post_id} isReplying={!comment.parent_id ? true : false} user={author} value={comment.content} commentId={comment.id}>
+                                <UserCommentDialog parentId={comment?.parent_id_string} postId={comment.post_id_string} isReplying={!comment.parent_id_string ? true : false} user={author} value={comment.content} commentId={comment.id}>
                                     <IconButton className='p-5' Icon={Pencil} color="blue" hasHoverEffect={false}>
                                         Editar
                                     </IconButton>

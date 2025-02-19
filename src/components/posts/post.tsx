@@ -13,12 +13,12 @@ interface PostProps {
 }
 
 export default function Post({ author, post, user }: PostProps) {
-
+    
     return (
         <PostContainer postId={post.id}>
-            <PostHeader author={author} post={post} />
-            <Link href={`/post/${post.id}`}>
-                {post.post_type}
+            <PostHeader user={user} author={author} post={post} />
+            <Link href={`/post/${post.id_string}`}>
+                {/* {post.post_type} */}
                 <PostContent post={post} />
             </Link>
             <PostFooter user={user} post={post} />

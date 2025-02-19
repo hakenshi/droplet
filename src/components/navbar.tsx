@@ -16,7 +16,7 @@ import { handleLogout } from '@/app/(auth)/login/actions'
 export default async function Navbar() {
 
     const { user, token } = await getAuthUser()
-
+    
     return (
         <header className=" text-white h-screen bg-gradient p-5 shadow-xl">
             <nav
@@ -85,7 +85,7 @@ export default async function Navbar() {
                         <Link href={"/profile"} className="px-4 py-2 hover:bg-zinc-200 rounded-xl w-full">
                             <span className="text-zinc-800">Perfil</span>
                         </Link>
-                        <Logout user={user} logoutFn={handleLogout} />
+                        <Logout user={user} />
                     </DropdownMenuContent>
                 </DropdownMenu>
             </nav>

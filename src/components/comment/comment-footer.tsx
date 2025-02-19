@@ -12,7 +12,7 @@ export default function CommentFooter({ comment, user, value }: { comment: Comme
 
     const likeComment = async () => {
         setIsLiking(true)
-        await storeLikeComment(comment.id, user.id)
+        await storeLikeComment(comment.id_string, user.id)
         setTimeout(() => setIsLiking(false), 1000)
     }
 
@@ -24,7 +24,7 @@ export default function CommentFooter({ comment, user, value }: { comment: Comme
                     <IconButton disabled={isLiking} onClick={likeComment} Icon={Heart} color={'red'} hasLiked={comment.post_likes.has_liked}>
                         {comment.post_likes.count}
                     </IconButton>
-                    <UserCommentDialog commentId={comment.id} isReplying={!comment.parent_id ? true : false} parentId={comment.parent_id} user={user} value={value} postId={comment.post_id} >
+                    <UserCommentDialog commentId={comment.id_string} isReplying={!comment.parent_id ? true : false} parentId={comment.parent_id} user={user} value={value} postId={comment.post_id_string} >
                         <IconButton Icon={MessageCircle} color="blue">
                             {comment.post_replies.count}
                         </IconButton>

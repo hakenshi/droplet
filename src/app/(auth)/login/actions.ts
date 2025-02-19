@@ -1,10 +1,9 @@
 'use server'
 
 import { getAuthUser } from '@/utils/getAuthUser';
-import { saveSession } from '@/utils/session';
+import { destroySession, saveSession } from '@/utils/session';
 import jwt from 'jsonwebtoken';
 import { revalidateTag } from 'next/cache';
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 export async function storeToken({ token, user }: AuthSuccessResponse) {
@@ -22,8 +21,7 @@ export async function storeToken({ token, user }: AuthSuccessResponse) {
 export async function handleLogout() {
 
     const { token } = await getAuthUser()
-
-    const cookie = await cookies()
+    
     const respose = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/logout`, {
         method: 'POST',
         headers: {
@@ -33,8 +31,9 @@ export async function handleLogout() {
     })
 
     if (respose.status === 204) {
-        cookie.delete("token")
-        cookie.delete("user")
+
+        await destroySession()
+        
         revalidateTag('auth')
         redirect("/")
     }

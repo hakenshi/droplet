@@ -50,7 +50,6 @@ export default function UserProfileTabs({ posts, likedPosts, user }: { posts: Po
     }
   }
 
-
   return (
     <div className="px-5">
       <div className="grid grid-cols-3">

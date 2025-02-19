@@ -1,36 +1,50 @@
 'use server'
+
 import { getAuthUser } from "@/utils/getAuthUser"
 import { revalidatePath, revalidateTag } from "next/cache"
 
 type Payload = {
-    id?: number
+    id?: string
     user_id: number
-    post_id: number
-    parent_id?: number
+    post_id: string
+    parent_id?: string
     content: string
 }
 
-export async function getPost(id: number) {
+export async function getPost(postId: string) {
+    try {
+        const { token } = await getAuthUser();
 
-    const { token } = await getAuthUser()
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/show/${postId}`, {
+            cache: 'force-cache',
+            next: {
+                tags: ['post']
+            },
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/show/${id}`, {
-        cache: 'force-cache',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
+        if (!response.ok) {
+            const errorDetails = await response.text();
+            throw new Error(`Failed to fetch post: ${response.status} ${response.statusText} - ${errorDetails}`);
         }
-    })
-    const { data }: { data: PostSuccessResponse } = await response.json()
 
-    return {
-        post: data.post,
-        author: data.author
+        const { data }: { data: PostSuccessResponse } = await response.json();
+
+        return {
+            author: data.author,
+            post: data.post,
+        };
+    } catch (error) {
+        console.error('Error fetching post:', error);
+        throw error;
     }
 }
 
-export async function getPostComments(postId: number): Promise<{ comments: CommentSuccessResponse[] }> {
+export async function getPostComments(postId: string): Promise<{ comments: CommentSuccessResponse[] }> {
     try {
         const { token } = await getAuthUser();
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/${postId}/comment`, {
@@ -56,7 +70,7 @@ export async function getPostComments(postId: number): Promise<{ comments: Comme
     }
 }
 
-export async function storeLikeComment(commentId: number, userId: number) {
+export async function storeLikeComment(commentId: string, userId: number) {
 
     try {
         const { token } = await getAuthUser();
@@ -112,7 +126,7 @@ export async function storeComment(data: Payload): Promise<void> {
     }
 }
 
-export async function updateComment(commentId: number, content: string, userId: number, postId: number) {
+export async function updateComment(commentId: string, content: string, userId: number, postId: string) {
     try {
         const { token } = await getAuthUser()
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/comment/${commentId}`, {

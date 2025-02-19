@@ -2,6 +2,7 @@
 
 import { cookies } from "next/headers"
 import { getIronSession } from "iron-session"
+import { revalidatePath } from "next/cache"
 
 const password = `${process.env.NEXT_JWT_SECRET}`
 
@@ -9,7 +10,7 @@ export async function getSession() {
     const cookie = await cookies()
     return getIronSession<{ token: string, user: string }>(cookie, {
         password,
-        cookieName: "auth",
+        cookieName: "droplet_session",
         ttl: 0,
         cookieOptions: {
             httpOnly: true,
@@ -34,4 +35,6 @@ export async function destroySession() {
 export async function updateAuthUser(user: User) {
     const session = await getSession()
     session.user = JSON.stringify(user)
+    await session.save()
+    revalidatePath(`/`)
 }

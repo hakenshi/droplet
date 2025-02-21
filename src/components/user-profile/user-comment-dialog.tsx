@@ -13,7 +13,7 @@ interface PostFormData {
 }
 
 type UserPostProps = {
-    commentId: string,
+    commentId?: string,
     postId: string,
     parentId?: string
     isReplying: boolean,
@@ -34,7 +34,7 @@ export default function UserCommentDialog({ commentId, postId, parentId, user, v
         if (isReplying || parentId) {
             await storeReply({ post_id: postId, id: commentId, user_id: user.id, content: formData.post })
         }
-        else if (value) {
+        else if (value && commentId) {
             console.log("updating post")
             await updateComment(commentId, formData.post, user.id, postId)
         }

@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers"
 import { getIronSession } from "iron-session"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 
 const password = `${process.env.NEXT_JWT_SECRET}`
 
@@ -36,5 +36,6 @@ export async function updateAuthUser(user: User) {
     const session = await getSession()
     session.user = JSON.stringify(user)
     await session.save()
-    revalidatePath(`/`)
+    revalidatePath("/")
+    revalidateTag("post")
 }

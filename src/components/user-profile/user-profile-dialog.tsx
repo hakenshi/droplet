@@ -14,7 +14,7 @@ interface UserProfileDialogProps {
     children: ReactNode
 }
 
-export default function UserProfileDialog({ children, dialogState: dialogState, setDialogSate: setDialogState }: UserProfileDialogProps) {
+export default function UserProfileDialog({ children, dialogState: dialogState, setDialogSate: setDialogState, user }: UserProfileDialogProps) {
 
     const submit = async (e: FormEvent) => {
         e.preventDefault()
@@ -45,19 +45,19 @@ export default function UserProfileDialog({ children, dialogState: dialogState, 
                             <Label>
                                 Nome
                             </Label>
-                            <Input name='name' />
+                            <Input defaultValue={user.name ?? ""} name='name' />
                         </div>
                         <div className='px-2 py-3'>
                             <Label>
                                 Sobrenome
                             </Label>
-                            <Input name='surname' />
+                            <Input defaultValue={user.surname ?? ""} name='surname' />
                         </div>
                         <div className='px-2 py-3'>
                             <Label>
                                 Bio
                             </Label>
-                            <Textarea name='bio' className='resize-none' />
+                            <Textarea defaultValue={user.bio ?? ""} name='bio' className='resize-none' />
                         </div>
                     </div>
                     <DialogFooter className='px-2 pt-5'>

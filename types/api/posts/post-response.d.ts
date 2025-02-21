@@ -23,6 +23,7 @@ type PostSuccessResponse = {
     author: User
     post: Post & {
         id_string: string
+        post_redirect_id: string
         post_type: "comment" | "post"
         post_comments: {
             count: number

@@ -1,24 +1,20 @@
 import React from 'react'
-import { getPost, getPostComments } from './action'
 import PostHeader from '@/components/posts/post-header'
 import PostContent from '@/components/posts/post-content'
 import PostFooter from '@/components/posts/post-footer'
 import { getAuthUser } from '@/utils/getAuthUser'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import CommentForm from '@/components/comment/comment-form'
 import Comment from '@/components/comment/comment'
 import { Card, CardContent } from '@/components/ui/card'
 import { MessageCircleOff } from 'lucide-react'
+import { getReply } from './action'
 
 export default async function PostPage({ params }: { params: { id: string } }) {
     const { id } = await params
 
-    const { post, author } = await getPost(id)
+    const { post, author } = await getReply(id)
 
     const { user } = await getAuthUser()
-
-
-    const { comments } = await getPostComments(post.id_string)
 
     return (
         <div className='p-5 h-screen overflow-scroll pb-20 no-scroll-bar'>

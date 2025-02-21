@@ -31,6 +31,6 @@ export default function PostTime({ created_at }: { created_at: Date }) {
     }, [created_at])
 
     return (
-        <p className='text-zinc-500 text-sm'>{postTime}</p>
+        <p className='text-zinc-400 text-xs font-medium'>{postTime}</p>
     )
 }

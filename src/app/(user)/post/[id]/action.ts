@@ -182,3 +182,30 @@ export async function storeReply(data: Payload) {
         throw e
     }
 }
+
+export async function deleteComment(postId: string) {
+    try {
+        const { token } = await getAuthUser()
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/comment/${postId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': "application/json",
+                'Accept': "application/json",
+            }
+        })
+
+        if (response.status === 204) {
+            revalidateTag('posts')
+            return { success: true };
+        } else {
+            const errorText = await response.text();
+            throw new Error(`Deletion failed for post "${postId}": ${errorText}`);
+        }
+    } catch (error) {
+        const detailedMessage = error instanceof Error ? error.message : "Unknown error";
+        console.error("Error in deletePost:", detailedMessage);
+        return { error: detailedMessage };
+    }
+}

@@ -6,7 +6,7 @@ import ResizeableTextArea from '../posts/resizeable-textarea'
 import { CalendarIcon, ImageIcon } from 'lucide-react'
 import { Button } from '../ui/button'
 
-export default function CommentForm({ postId, userId }: { postId: number, userId: number }) {
+export default function CommentForm({ postId, userId }: { postId: string, userId: number }) {
 
     const submit = async (e: FormEvent) => {
         e.preventDefault()

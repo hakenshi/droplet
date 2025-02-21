@@ -14,6 +14,7 @@ import { usePathname } from 'next/navigation';
 import PostBackButton from '../buttons/post-back-button';
 import Link from 'next/link';
 import UserCommentDialog from '../user-profile/user-comment-dialog';
+import { deleteComment } from '@/app/(user)/post/[id]/action';
 
 type PostHeaderProps = {
     author: User,
@@ -30,7 +31,7 @@ export default function CommentHeader({ author, comment, hasBackButton = false }
     return (
         <CardHeader className={`${removePaddingTop ? 'px-0' : ''}`}>
             <div className='flex items-center gap-3'>
-                <Link className='w-full flex items-center gap-3' href={`/profile/${author.username}`} >
+                <div className='w-full flex items-center gap-3' >
                     {hasBackButton && <PostBackButton />}
                     <Avatar>
                         <AvatarImage src={author.profile_image} alt="avatar" />
@@ -39,11 +40,17 @@ export default function CommentHeader({ author, comment, hasBackButton = false }
                         </AvatarFallback>
                     </Avatar>
                     <div>
-                        <p className='text-zinc-800'>{author.name ? `${author.name} ${author.surname}` : author.username}</p>
-                        <p className='text-zinc-500 text-sm'>@{author.username}</p>
-                        <PostTime created_at={comment.created_at} />
+                        <div className='text-zinc-800'>
+                            <div className='flex gap-1 items-center'>
+                                <p>{author.name ? `${author.name} ${author.surname}` : author.username}</p>
+                                <Link href={`/profile/${author.username}`} className='text-zinc-500 text-sm'>@{author.username}</Link>
+
+                            </div>
+                            <PostTime created_at={comment.created_at} />
+                        </div>
+
                     </div>
-                </Link>
+                </div>
                 <div>
                     <div>
                         <DropdownMenu>
@@ -71,7 +78,7 @@ export default function CommentHeader({ author, comment, hasBackButton = false }
                                         </div>
                                         <DialogFooter>
                                             <div className='flex justify-end gap-3'>
-                                                <Button onClick={async () => { await deletePost(comment.id_string); setIsOpen(false); }} variant={'destructive'}>Excluir</Button>
+                                                <Button onClick={async () => { await deleteComment(comment.id_string); setIsOpen(false); }} variant={'destructive'}>Excluir</Button>
                                                 <Button onClick={() => setIsOpen(false)}>
                                                     Cancelar
                                                 </Button>

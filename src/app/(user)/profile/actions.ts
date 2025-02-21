@@ -223,10 +223,10 @@ export async function storeLikePost(postId: string, isPostPage: boolean) {
         }
 
         if (isPostPage) {
-            revalidateTag('post')
+            revalidateTag('posts')
         }
         else {
-            revalidateTag('posts')
+            revalidateTag('post')
         }
 
     } catch (error) {

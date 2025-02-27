@@ -34,7 +34,7 @@ export default function UserProfileCover({
         'cover': 'w-full h-48',
         'icon': 'size-32',
     }
-    
+
     return (
         <div
             className={`relative ${ratios[ratio]} rounded-md overflow-hidden z-0`}
@@ -42,12 +42,15 @@ export default function UserProfileCover({
             onMouseLeave={() => setIsHovering(false)}
         >
             {/* Background Image */}
-            {!src ? (<div className='absolute inset-0 object-cover bg-sky-500'></div> ): (<Image
-                className="absolute inset-0 object-cover"
-                fill
-                src={src}
-                alt={`${user.name}'s background image`}
-            />)}
+            {!src ? (<div className='absolute inset-0 object-cover bg-sky-500'></div>) :
+                (
+                    <Image
+                        className="absolute inset-0 object-cover"
+                        fill
+                        src={src}
+                        alt={`${user.name}'s background image`}
+                    />
+                )}
 
             {/* Overlay */}
             <motion.div

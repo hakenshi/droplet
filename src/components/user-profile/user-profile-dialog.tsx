@@ -26,7 +26,9 @@ export default function UserProfileDialog({ children, dialogState: dialogState, 
     return (
         <Dialog open={dialogState} onOpenChange={setDialogState}>
             <DialogTrigger asChild>
-                <Button onClick={() => setDialogState(true)} className='rounded-full bg-sky-500 hover:bg-sky-600 transition-colors duration-200 shadow-md border-2 border-zinc-50'>
+                <Button 
+                onClick={() => setDialogState(true)} 
+                className='rounded-full bg-sky-500 hover:bg-sky-600 transition-colors duration-200 shadow-md border-2 border-zinc-50'>
                     Editar Perfil
                 </Button>
             </DialogTrigger>

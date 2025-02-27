@@ -27,6 +27,7 @@ export default function CommentHeader({ author, comment, hasBackButton = false }
     const [isOpen, setIsOpen] = useState(false)
     const pathname = usePathname()
     const removePaddingTop = pathname.includes('/post/')
+    const [editing, setEditing] = useState(false)
 
     return (
         <CardHeader className={`${removePaddingTop ? 'px-0' : ''}`}>
@@ -86,8 +87,17 @@ export default function CommentHeader({ author, comment, hasBackButton = false }
                                         </DialogFooter>
                                     </DialogContent>
                                 </Dialog>
-                                <UserCommentDialog parentId={comment?.parent_id_string} postId={comment.post_id_string} isReplying={!comment.parent_id_string ? true : false} user={author} value={comment.content} commentId={comment.id}>
-                                    <IconButton className='p-5' Icon={Pencil} color="blue" hasHoverEffect={false}>
+                                <UserCommentDialog
+                                    parentId={comment?.parent_id_string}
+                                    postId={comment.post_id_string}
+                                    isReplying={!editing && !comment.parent_id_string ? true : false}
+                                    user={author}
+                                    value={comment.content}
+                                    commentId={comment.id_string}
+                                >
+                                    <IconButton
+                                        onClick={() => setEditing(true)}
+                                        className='p-5' Icon={Pencil} color="blue" hasHoverEffect={false}>
                                         Editar
                                     </IconButton>
                                 </UserCommentDialog>

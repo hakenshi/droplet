@@ -12,13 +12,15 @@ import { getReply } from './action'
 export default async function PostPage({ params }: { params: { id: string } }) {
     const { id } = await params
 
-    const { post, author } = await getReply(id)
+    const reply = await getReply(id)
+
+    console.log(reply)
 
     const { user } = await getAuthUser()
 
     return (
         <div className='p-5 h-screen overflow-scroll pb-20 no-scroll-bar'>
-            <Card>
+            {/* <Card>
                 <CardContent className=''>
                     <PostHeader user={user} hasBackButton={true} author={author} post={post} />
                     <PostContent post={post} />
@@ -40,7 +42,7 @@ export default async function PostPage({ params }: { params: { id: string } }) {
                         </div>)}
                     </div>
                 </CardContent>
-            </Card>
+            </Card> */}
         </div>
     )
 }

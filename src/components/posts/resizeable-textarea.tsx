@@ -12,7 +12,7 @@ export default function ResizeableTextArea({...rest}: React.TextareaHTMLAttribut
     function handleTextArea() {
         if (textAreaRef.current) {
             textAreaRef.current.style.height = 'auto'
-            textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`
+            // textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`
             setAreaSize(textAreaRef.current.scrollHeight)
         }
     }
@@ -21,7 +21,7 @@ export default function ResizeableTextArea({...rest}: React.TextareaHTMLAttribut
     }, [])
 
     return (
-        <Textarea {...rest} onChange={handleTextArea} ref={textAreaRef} className={cn(`max-h-96 h-fit overflow-auto ${rest.className}`)} style={{ resize: "none", height: areaSize ? `${areaSize + 5}px` : 'auto' }}>
+        <Textarea {...rest} onChange={handleTextArea} ref={textAreaRef} className={cn(`max-h-96 overflow-auto ${rest.className}`)} style={{ resize: "none", height: areaSize ? `${areaSize + 5}px` : 'auto' }}>
         </Textarea>
     )
 }

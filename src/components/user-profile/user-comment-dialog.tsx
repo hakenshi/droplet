@@ -31,15 +31,18 @@ export default function UserCommentDialog({ commentId, postId, parentId, user, v
         const form = new FormData(e.target as HTMLFormElement)
         const formData = Object.fromEntries(form.entries()) as unknown as PostFormData
 
-        if (isReplying || parentId) {
+        if (isReplying) {
+            console.log("replying")
             await storeReply({ post_id: postId, id: commentId, user_id: user.id, content: formData.post })
         }
         else if (value && commentId) {
             console.log("updating post")
+            console.log(value, commentId)
             await updateComment(commentId, formData.post, user.id, postId)
         }
         else {
             await storeComment({ post_id: postId, user_id: user.id, content: formData.post })
+            console.log("bloco else")
         }
         setIsOpen(false)
     }

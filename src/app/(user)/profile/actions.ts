@@ -8,6 +8,7 @@ type Payload = {
     id?: string
     user_id: number
     content: string
+    donation_goal?: number
 }
 
 export async function getUserProfile(username: string): Promise<User> {

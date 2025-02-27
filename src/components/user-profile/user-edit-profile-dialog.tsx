@@ -1,12 +1,11 @@
 'use client'
 
-import React, { useState, useRef, RefObject, useEffect, useCallback } from 'react'
-import UserProfileDialog from './user-profile-dialog'
 import UserProfileCover from '@/components/user-profile/user-profile-cover'
 import { Pencil, X } from 'lucide-react'
-import ImageCopperModal from './user-cropper-modal'
+import React, { RefObject, useCallback, useEffect, useRef, useState } from 'react'
 import ProfileImage from './profile-image'
-import { getUserImage } from '@/utils/user'
+import ImageCopperModal from './user-cropper-modal'
+import UserProfileDialog from './user-profile-dialog'
 
 export default function UserEditProfileDialog({ user }: { user: User }) {
 

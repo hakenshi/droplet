@@ -102,3 +102,12 @@
   animation: l3 1s infinite linear;
 }
 @keyframes l3 {to{transform: rotate(1turn)}}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

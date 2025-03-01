@@ -11,6 +11,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card
 import { Input } from '../ui/input'
 import UserCommentDialog from '../user-profile/user-comment-dialog'
 import MoneyInput from '../inputs/money-input'
+import { Progress } from '../ui/progress'
 
 export default function PostFooter({ post, user, value }: { post: PostSuccessResponse['post'], user: User, value?: string }) {
 
@@ -44,6 +45,13 @@ export default function PostFooter({ post, user, value }: { post: PostSuccessRes
                                     <p>$0.00 / ${post.donation_goal}</p>
                                 </CardTitle>
                             </CardHeader>
+                            <CardContent>
+                                <div className='flex justify-between text-sm text-zinc-500 pb-3'>
+                                    <p>0%</p>
+                                    <p>${post.donation_goal}</p>
+                                </div>
+                                <Progress value={50} max={Number(post.donation_goal)} />
+                            </CardContent>
                             <CardFooter className='justify-end gap-2'>
                                 <Button variant={"ghost"} >$5</Button>
                                 <Button variant={"ghost"} >$10</Button>

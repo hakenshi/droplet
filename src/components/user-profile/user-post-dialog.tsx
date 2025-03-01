@@ -56,6 +56,8 @@ export default function UserPostDialog({ id, user, value, children }: UserPostPr
         setIsDonationOpen(false)
     }
 
+    console.log(formattedDonation, donation)
+
 
     return (
         <Dialog onOpenChange={setIsOpen} open={isOpen}>

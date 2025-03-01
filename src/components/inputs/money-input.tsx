@@ -25,6 +25,7 @@ export default function MoneyInput({ donationValue, ...rest }: MoneyInputProps) 
         setDonation(numberValue)
     }
 
+    console.log(donation, formattedDonation)
 
     return (
         <div className='flex flex-col'>

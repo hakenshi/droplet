@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PostLikes extends Model
 {
     protected $fillable = [
+        'id',
         'post_id',
         'user_id',
     ];

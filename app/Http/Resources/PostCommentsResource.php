@@ -18,6 +18,9 @@ class PostCommentsResource extends JsonResource
             'author' => new AuthorResource($this->user),
             'post' => [
                 'id' => $this->id,
+                'id_string' => str($this->resource->id),
+                'post_redirect_id' => method_exists($this->resource, 'likes') ? str($this->resource->id) : str($this->post->id),
+
                 'content' => $this->content,
                 'post_images' => $this->postImages ? $this->postImages->map(fn($item) => $item->url)->toArray() : null,
                 'post_type' => method_exists($this->resource, 'comments') ? 'post' : 'comment',

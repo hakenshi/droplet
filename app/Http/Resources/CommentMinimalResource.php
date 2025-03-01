@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class PostMinimalResource extends JsonResource
+class CommentMinimalResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,11 +15,11 @@ class PostMinimalResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'author' => new AuthorResource($this->user),
-                'id' => $this->id,
-                'id_string' => (string) $this->id,
-                'content' => $this->content,
-                'created_at' => $this->created_at
+            'autor' => new AuthorResource($this->user),
+            'id' => $this->id,
+            'id_string' => (string)$this->id,
+            'content' => $this->content,
+            'created_at' => $this->created_at
         ];
     }
 }

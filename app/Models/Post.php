@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Post extends Model
 {
     protected $fillable = [
+        'id',
         'user_id',
         'content',
         'donation_goal'
@@ -30,5 +33,10 @@ class Post extends Model
     public function postImages(): hasMany
     {
         return $this->hasMany(PostImages::class);
+    }
+
+    public function donations(): BelongsToMany
+    {
+        return $this->belongsToMany(PostDonation::class, 'post_donations');
     }
 }

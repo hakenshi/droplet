@@ -18,7 +18,9 @@ class PostResource extends JsonResource
             'author' => new AuthorResource($this->user),
             'post' => [
                 'id' => $this->id,
+                'id_string' => "$this->id",
                 'content' => $this->content,
+                'donation_goal' => $this->donation_goal ?: null,
                 'post_images' => $this->postImages ? $this->postImages->map(fn($item) => $item->url)->toArray() : null,
                 'post_comments' => [
                     'count' => $this->comments()->whereNull('parent_id')->count(),

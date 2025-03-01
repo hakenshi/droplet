@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('comment_likes', function (Blueprint $table) {
             $table->bigInteger('id')->primary()->unique();
-            $table->foreignId('comment_id')->constrained();
-            $table->foreignId('user_id')->constrained();
+            $table->foreignId('comment_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }

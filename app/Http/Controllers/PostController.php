@@ -27,11 +27,12 @@ class PostController extends Controller
     public function store(PostRequest $request, Snowflake $snowflake)
     {
         try {
-            $data = $request->validated();
-            $data['id'] = $snowflake->id();
 
+            $data = $request->validated();
+
+            $data['id'] = $snowflake->id();
             $post = Post::create($data);
-            return response()->json($post, 201);
+            return new PostResource($post);
         } catch (\Exception $e) {
             return response()->json([
                 'error' => $e->getMessage()
@@ -40,6 +41,7 @@ class PostController extends Controller
     }
     public function storeLike(Request $request, Snowflake $snowflake)
     {
+
         $data = $request->validate([
             'post_id' => 'required',
             'user_id' => 'required'
@@ -48,6 +50,7 @@ class PostController extends Controller
         $data['id'] = $snowflake->id();
 
         $exists = PostLikes::where('post_id', $data['post_id'])->where('user_id', $data['user_id'])->first();
+
         if ($exists) {
             $exists->delete();
             return response()->json([], 200);
@@ -70,7 +73,7 @@ class PostController extends Controller
 
         $userLikedPosts = $user->likedPosts;
         $userLikedComments = $user->likedComments;
-        $mergedResult = $userLikedPosts->merge($userLikedComments)->sortByDesc('created_at')->values();
+        $mergedResult = $userLikedPosts->merge($userLikedComments)->sortByDesc('created_at')->values()->reverse();
 
         return PostCommentsResource::collection($mergedResult);
     }

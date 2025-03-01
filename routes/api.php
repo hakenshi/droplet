@@ -27,9 +27,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('store', [PostController::class, 'store']);
         Route::post('like', [PostController::class, 'storeLike']);
         Route::prefix('comment')->group(function () {
+            Route::get('show/{comment}', [CommentController::class, 'show']);
             Route::post('/', [CommentController::class, 'store']);
             Route::post('reply/{comment}', [CommentController::class, 'storeReply']);
             Route::post('like/{comment}', [CommentController::class, 'storeLike']);
+            Route::patch('{comment}', [CommentController::class, 'update']);
             Route::delete('{comment}', [CommentController::class, 'destroy']);
         });
         Route::get('{post}/comment', [CommentController::class, 'index']);

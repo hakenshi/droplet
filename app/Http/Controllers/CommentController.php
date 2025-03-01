@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\CommentResource;
+use App\Http\Resources\PostMinimalResource;
+use App\Http\Resources\ReplyResource;
 use App\Models\Comment;
 use App\Models\CommentLike;
 use App\Models\Post;
@@ -24,12 +26,14 @@ class CommentController extends Controller
      */
     public function store(Request $request, Snowflake $snowflake)
     {
-        $data['id'] = $snowflake->id();
+
         $data = $request->validate([
             'user_id' => 'required|integer|exists:users,id',
             'post_id' => 'required|integer|exists:posts,id',
             'content' => 'required|string',
         ]);
+
+        $data['id'] = $snowflake->id();
 
 
         Comment::create($data);
@@ -39,10 +43,12 @@ class CommentController extends Controller
 
     public function storeLike(Comment $comment, Request $request, Snowflake $snowflake)
     {
-        $data['id'] = $snowflake->id();
+
         $data = $request->validate([
             'user_id' => 'required|integer|exists:users,id',
         ]);
+
+        $data['id'] = $snowflake->id();
 
         $data['comment_id'] = $comment->id;
 
@@ -54,17 +60,17 @@ class CommentController extends Controller
             CommentLike::create($data);
             return new CommentResource($comment);
         }
-
-
     }
 
-    public function storeReply(Request $request, Comment $comment)
+    public function storeReply(Request $request, Comment $comment,  Snowflake $snowflake)
     {
         $data = $request->validate([
             'user_id' => 'required|integer|exists:users,id',
             'post_id' => 'required|integer|exists:posts,id',
             'content' => 'required|string',
         ]);
+
+        $data['id'] = $snowflake->id();
 
         $data['parent_id'] = $comment->id;
 
@@ -78,7 +84,7 @@ class CommentController extends Controller
      */
     public function show(Comment $comment)
     {
-
+        return new ReplyResource($comment->replies()->firstOrFail());
     }
 
     /**
@@ -91,7 +97,6 @@ class CommentController extends Controller
             'post_id' => 'required|integer|exists:posts,id',
             'content' => 'required|string',
         ]);
-
         $comment->update($data);
         return new CommentResource($comment);
     }

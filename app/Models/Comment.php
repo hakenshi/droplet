@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Comment extends Model
 {
     protected $fillable = [
+        'id',
         'post_id',
         'user_id',
         'parent_id',
@@ -27,6 +28,11 @@ class Comment extends Model
 
     public function replies(): HasMany {
         return $this->hasMany(Comment::class, 'parent_id');
+    }
+
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(Comment::class, 'parent_id');
     }
 
     public function commentLikes(): HasMany{

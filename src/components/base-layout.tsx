@@ -2,9 +2,10 @@ import React from 'react'
 import Navbar from './navbar'
 import Sidebar from './sidebar/sidebar'
 import { getUsers } from '@/utils/user';
+import { getAuthUser } from '@/utils/getAuthUser';
 
-export default async function BaseLayout({ children, token }: { children: React.ReactNode; token: string }) {
-
+export default async function BaseLayout({ children }: { children: React.ReactNode }) {
+    const { token } = await getAuthUser()
     const {users} = await getUsers(token)
     
     return (

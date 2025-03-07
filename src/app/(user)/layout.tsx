@@ -1,14 +1,10 @@
-import React from 'react'
 import BaseLayout from '@/components/base-layout';
-import { getAuthUser } from '@/utils/getAuthUser';
+import React from 'react';
 
-export default async function HomeLayout({ children }: { children: React.ReactNode }) {
-
-  const { token } = await getAuthUser()
-
+export default function HomeLayout({ children }: { children: React.ReactNode }) {
   return (
-    <BaseLayout token={token}>
-      {children}
+    <BaseLayout>
+     {children}
     </BaseLayout>
   );
 }

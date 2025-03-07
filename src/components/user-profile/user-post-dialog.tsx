@@ -6,13 +6,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { useMoney } from "@/lib/hooks/useMoney";
 import { CalendarIcon, CircleDollarSignIcon, ImageIcon } from "lucide-react";
 import React, { FormEvent, useState } from 'react';
 import MoneyInput from '../inputs/money-input';
-import useMoney from "@/lib/hooks/useMoney";
 
 interface PostFormData {
     post: string;
+    donation: string
 }
 
 type UserPostProps = {
@@ -37,7 +38,7 @@ export default function UserPostDialog({ id, user, value, children }: UserPostPr
             await updatePost({ id, user_id: user.id, content: formData.post })
         }
         else {
-            await storePost({ user_id: user.id, content: formData.post })
+            await storePost({ user_id: user.id, content: formData.post, donation_goal: donation })
         }
         setIsOpen(false)
     }
@@ -55,9 +56,6 @@ export default function UserPostDialog({ id, user, value, children }: UserPostPr
         setIsHovering(false)
         setIsDonationOpen(false)
     }
-
-    console.log(formattedDonation, donation)
-
 
     return (
         <Dialog onOpenChange={setIsOpen} open={isOpen}>
@@ -129,7 +127,7 @@ export default function UserPostDialog({ id, user, value, children }: UserPostPr
                                                     <DialogHeader>
                                                         <DialogTitle>Adicionar meta de doação à postagem</DialogTitle>
                                                     </DialogHeader>
-                                                    <MoneyInput />
+                                                    <MoneyInput name="donation" />
                                                     <DialogFooter>
                                                         <DialogClose onClick={() => handleCloseDonation()} asChild>
                                                             <Button>Salvar</Button>
@@ -150,8 +148,7 @@ export default function UserPostDialog({ id, user, value, children }: UserPostPr
                         </div>
                     </form>
                 </div>
-            </DialogContent >
+            </DialogContent>
         </Dialog >
-
     )
 }

@@ -6,8 +6,8 @@ import Link from "next/link";
 export default function PostContainer({ children, postId }: { children: ReactNode, postId: number }) {
     
     return (
-        <Card className='rounded-sm shadow z-0'>
-            <CardContent>
+        <Card className='rounded-sm shadow'>
+            <CardContent className="relative">
                 {children}
             </CardContent>
         </Card>

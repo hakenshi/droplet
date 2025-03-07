@@ -16,11 +16,9 @@ export async function getReply(replyId: string) {
 
     const { data } = await response.json()
 
-    console.log(data)
-
     return {
         reply: data.reply,
         post: data.post,
-        comment: data.comment
+        comment: data.parent_comment
     }
 }

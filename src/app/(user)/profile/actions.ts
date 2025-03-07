@@ -148,6 +148,8 @@ export async function getUserLikedPosts(username: string) {
 export async function storePost(data: Payload) {
     const { token } = await getAuthUser()
 
+    console.log(data)
+
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/store`, {
             method: "POST",

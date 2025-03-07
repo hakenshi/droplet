@@ -6,25 +6,36 @@ type UserCardProps = {
     user: User
 }
 
-export default function UserCard({user}: UserCardProps) {
+export default function UserCard({ user }: UserCardProps) {
     return (
         <div className={`border relative h-24 bg-center rounded-xl`}>
 
             <div className='absolute inset-0'>
-                <Image className='w-full h-full object-cover' src={"https://w.wallhaven.cc/full/7p/wallhaven-7py313.jpg"} width={200} height={200} alt={`${user.username}'s profile background.`} />
+                {user.profile_image ? (
+                    <Image
+                        className='w-full h-full object-cover rounded-xl'
+                        src={user.cover_image}
+                        width={1000}
+                        height={1000}
+                        alt={`${user.username}'s profile background.`} />)
+                    : (
+                        <div 
+                        className='bg-gradient-to-br from-blue-800 via-sky-500 to-lime-300 w-full h-full flex items-center justify-center  rounded-xl' 
+                        />
+                    )}
             </div>
 
-            <div className='absolute inset-0 bg-black/35 z-10 w-full h-full rounded-xl p-2 grid grid-cols-[auto_1fr] items-center'>
-            <Avatar className='w-16 h-16 border-white border-2 border-collapse'>
-                <AvatarImage src={"/avatar.png"} alt="avatar" />
-                <AvatarFallback className="bg-sky-500 text-white text-2xl">
-                    {user.username.toUpperCase().substring(0, 2)}
-                </AvatarFallback>
-            </Avatar>
-            <div className='text-white max-w-11/12'>
-                {/* {user.name != null ? (<p className='truncate'>{user.name}</p>): ""} */}
-                <p className='truncate'>@{user.username}</p>
-            </div>
+            <div className='absolute inset-0 bg-black/35 z-10 w-full h-full rounded-xl p-2 flex gap-3 items-center'>
+                <Avatar className='size-10 border-white border-2 border-collapse'>
+                    <AvatarImage src={user.profile_image} alt="avatar" />
+                    <AvatarFallback className="bg-sky-500 text-white text-2xl">
+                        {user.username.toUpperCase().substring(0, 2)}
+                    </AvatarFallback>
+                </Avatar>
+                <div className='text-white max-w-11/12'>
+                    {/* {user.name != null ? (<p className='truncate'>{user.name}</p>): ""} */}
+                    <p className='truncate'>@{user.username}</p>
+                </div>
             </div>
         </div>
     )

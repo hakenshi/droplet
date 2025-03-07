@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
+import { MoneyProvider } from "@/lib/hooks/useMoney";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
-
 
 export const metadata: Metadata = {
   title: "Droplet",
@@ -24,7 +24,7 @@ export default function RootLayout({
         className={`${geistSans.className} antialiased`}
         cz-shortcut-listen="true"
       >
-        {children}
+        <MoneyProvider>{children}</MoneyProvider>
       </body>
     </html>
   );

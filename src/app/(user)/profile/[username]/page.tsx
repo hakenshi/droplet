@@ -1,15 +1,17 @@
 import UserEditProfileDialog from '@/components/user-profile/user-edit-profile-dialog'
 import UserProfileTabs from '@/components/user-profile/user-profile-tabs'
 import Image from 'next/image'
-import React from 'react'
+import React, { use } from 'react'
 import { getUserLikedPosts, getUserPosts, getUserProfile } from '../actions'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { AspectRatio } from '@/components/ui/aspect-ratio'
+import { getAuthUser } from '@/utils/getAuthUser'
 
 export default async function ProfilePage({ params }: { params: { username: string } }) {
 
     const { username } = await params
     const user = await getUserProfile(username)
+    const {user: authUser} = await getAuthUser()
     const { posts } = await getUserPosts(username)
     const { likedPosts } = await getUserLikedPosts(user.username)
 
@@ -20,7 +22,8 @@ export default async function ProfilePage({ params }: { params: { username: stri
                     {user.cover_image ? (
                         <Image
                             className='object-cover rounded-md'
-                            fill
+                            width={1920}
+                            height={1080}
                             src={user.cover_image}
                             alt={`${user.name}'s background image`}
                         />
@@ -61,7 +64,7 @@ export default async function ProfilePage({ params }: { params: { username: stri
                         <UserEditProfileDialog user={user} />
                     </div>
                 </div>
-                <UserProfileTabs user={user} posts={posts as unknown as PostSuccessResponse[]} likedPosts={likedPosts} />
+                <UserProfileTabs user={authUser} posts={posts as unknown as PostSuccessResponse[]} likedPosts={likedPosts} />
             </div>
         </div>
     )

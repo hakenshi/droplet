@@ -1,4 +1,4 @@
-import useMoney from '@/lib/hooks/useMoney'
+import { useMoney } from '@/lib/hooks/useMoney'
 import { DollarSign } from 'lucide-react'
 
 interface MoneyInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -7,25 +7,7 @@ interface MoneyInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 export default function MoneyInput({ donationValue, ...rest }: MoneyInputProps) {
 
-    const { donation, formattedDonation, setDonation, setFormattedDonation } = useMoney()
-
-    const handleFormattedDonation = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const amount = e.target.value.replace(/\D/g, '')
-        const numberValue = Number(amount) / 100
-
-        if (numberValue > (donationValue ?? 2000)) return
-
-        const formattedValue = Intl.NumberFormat('en-US', {
-            style: "decimal",
-            currency: "USD",
-            maximumFractionDigits: 2,
-            minimumFractionDigits: 2,
-        }).format(numberValue)
-        setFormattedDonation(formattedValue)
-        setDonation(numberValue)
-    }
-
-    console.log(donation, formattedDonation)
+    const { donation, formattedDonation, handleFormattedDonation } = useMoney()
 
     return (
         <div className='flex flex-col'>

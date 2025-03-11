@@ -62,7 +62,7 @@ class CommentController extends Controller
         }
     }
 
-    public function storeReply(Request $request, Comment $comment,  Snowflake $snowflake)
+    public function storeReply(Request $request, Comment $comment, Snowflake $snowflake)
     {
         $data = $request->validate([
             'user_id' => 'required|integer|exists:users,id',
@@ -84,7 +84,7 @@ class CommentController extends Controller
      */
     public function show(Comment $comment)
     {
-        return new ReplyResource($comment->replies()->firstOrFail());
+        return $comment->replies()->count() > 0 ? new ReplyResource($comment->replies()->firstOrFail()) : new ReplyResource($comment);
     }
 
     /**

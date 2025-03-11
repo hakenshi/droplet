@@ -35,8 +35,8 @@ class Post extends Model
         return $this->hasMany(PostImages::class);
     }
 
-    public function donations(): BelongsToMany
+    public function donations(): HasMany
     {
-        return $this->belongsToMany(PostDonation::class, 'post_donations');
+        return $this->hasMany(PostDonation::class);
     }
 }

@@ -20,7 +20,10 @@ class PostResource extends JsonResource
                 'id' => $this->id,
                 'id_string' => "$this->id",
                 'content' => $this->content,
-                'donation_goal' => $this->donation_goal ?: null,
+                'donation' => [
+                    "goal" => $this->donation_goal ?: null,
+                    "total_value" => $this->donations->sum('amount'),
+                ],
                 'post_images' => $this->postImages ? $this->postImages->map(fn($item) => $item->url)->toArray() : null,
                 'post_comments' => [
                     'count' => $this->comments()->whereNull('parent_id')->count(),

@@ -20,8 +20,11 @@ class PostCommentsResource extends JsonResource
                 'id' => $this->id,
                 'id_string' => str($this->resource->id),
                 'post_redirect_id' => method_exists($this->resource, 'likes') ? str($this->resource->id) : str($this->post->id),
-
                 'content' => $this->content,
+                'donation' => [
+                    "goal" => $this->donation_goal ?: 0,
+                    "total_value" => method_exists($this->resource, "donations") ? $this->resource->donations->sum('amount') : null,
+                ],
                 'post_images' => $this->postImages ? $this->postImages->map(fn($item) => $item->url)->toArray() : null,
                 'post_type' => method_exists($this->resource, 'comments') ? 'post' : 'comment',
                 'post_comments' => [

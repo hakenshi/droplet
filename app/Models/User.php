@@ -56,29 +56,43 @@ class User extends Authenticatable
         ];
     }
 
-    public function posts(): HasMany{
+    public function posts(): HasMany
+    {
         return $this->hasMany(Post::class);
     }
-    public function likedPosts(): BelongsToMany{
+    public function likedPosts(): BelongsToMany
+    {
         return $this->belongsToMany(Post::class, 'post_likes')->withTimestamps();
     }
 
-    public function likedComments(): BelongsToMany{
+    public function likedComments(): BelongsToMany
+    {
         return $this->belongsToMany(Comment::class, 'comment_likes')->withTimestamps();
     }
 
-    public static function updateProfileImage(Request $request, string $fileName, string $path){
+    public function followers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'follows', 'following_id', 'follower_id');
+    }
+
+    public function following(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'follows', 'follower_id', 'following_id');
+    }
+
+
+    public static function updateProfileImage(Request $request, string $fileName, string $path)
+    {
 
         $user = $request->user();
 
         if ($request->hasFile($fileName)) {
             $column = $fileName == "icon" ? "profile_image" : "cover_image";
-            if (!empty($user->$column)){
+            if (!empty($user->$column)) {
                 Storage::disk('public')->delete($user->$column);
             }
             $imagePath = $request->file($fileName)->store($path, 'public');
         }
         return !empty($imagePath) ? $imagePath : null;
     }
-
 }

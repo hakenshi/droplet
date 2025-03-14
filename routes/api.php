@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\FollowController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
 use App\Http\Resources\UserResource;
@@ -18,6 +19,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('user')->group(function () {
         Route::get('{user}', [UserController::class, 'show']);
         Route::patch('{user}', [UserController::class, 'update']);
+        Route::prefix('follow')->group(function () {
+            Route::get('{username}', [FollowController::class, 'show']);
+            Route::post('{username}', [FollowController::class, 'followUser']);
+            Route::get('followers', [FollowController::class, 'followers']);
+            Route::get('following', [FollowController::class, 'following']);
+        });
+        Route::delete('unfollow/{username}', [FollowController::class, 'unfollowUser']);
+
     });
 
     Route::prefix('posts')->group(function () {
@@ -39,5 +48,4 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('{post}', [PostController::class, 'update']);
         Route::delete('{post}', [PostController::class, 'destroy']);
     });
-
 });

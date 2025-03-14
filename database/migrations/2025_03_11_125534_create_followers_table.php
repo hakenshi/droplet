@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('followers', function (Blueprint $table) {
+        Schema::create('follows', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('following_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('follower_id')->constrained('users')->onDelete('cascade');
-            $table->unique(['user_id', 'follower_id']);
+            $table->unique(['following_id', 'follower_id']);
             $table->enum('status', ['accepted', 'pending', 'rejected', 'blocked'])->default('pending');
             $table->timestamps();
         });

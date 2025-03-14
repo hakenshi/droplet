@@ -9,7 +9,7 @@ import IconButton from '../buttons/icon-button';
 import { AlertCircle, Ellipsis, Pencil, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Button } from '../ui/button';
-import { deletePost } from '@/app/(user)/profile/actions';
+import { deletePost } from '@/app/(user)/profile/actions/actions';
 import { usePathname } from 'next/navigation';
 import PostBackButton from '../buttons/post-back-button';
 import Link from 'next/link';

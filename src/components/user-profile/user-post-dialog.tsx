@@ -1,6 +1,6 @@
 'use client'
 
-import { storePost, updatePost } from "@/app/(user)/profile/actions";
+import { storePost, updatePost } from "@/app/(user)/profile/actions/actions";
 import ResizeableTextArea from "@/components/posts/resizeable-textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,7 @@ export default function UserPostDialog({ id, user, value, children }: UserPostPr
 
     const [isOpen, setIsOpen] = useState<boolean>(false)
     const [isDonationOpen, setIsDonationOpen] = useState<boolean>(false)
+
     const [isHovering, setIsHovering] = useState<boolean>(false)
     const { clearDonationState, donation, formattedDonation } = useMoney()
 

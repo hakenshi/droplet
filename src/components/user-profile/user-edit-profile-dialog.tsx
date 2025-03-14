@@ -16,10 +16,12 @@ export default function UserEditProfileDialog({ user }: { user: User }) {
         cover_image: "",
         profile_image: "",
     })
+    
     const [imageRatio, setImageRatio] = useState({
         w: 0,
         h: 0
     })
+
     const coverRef = useRef<HTMLInputElement>(null)
     const iconRef = useRef<HTMLInputElement>(null)
 

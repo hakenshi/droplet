@@ -1,6 +1,6 @@
 'use client'
 import { storeLikeComment } from '@/app/(user)/post/[id]/action'
-import { storeLikePost } from '@/app/(user)/profile/actions'
+import { storeLikePost } from '@/app/(user)/profile/actions/actions'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { ChevronDown, Heart, MessageCircle } from 'lucide-react'
 import { usePathname } from 'next/navigation'
@@ -11,7 +11,7 @@ import { Button } from '../ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card'
 import { Progress } from '../ui/progress'
 import UserCommentDialog from '../user-profile/user-comment-dialog'
-import {motion} from "framer-motion"
+import { motion } from "framer-motion"
 
 export default function PostFooter({ post, user, value }: { post: PostSuccessResponse['post'], user: User, value?: string }) {
 
@@ -33,8 +33,6 @@ export default function PostFooter({ post, user, value }: { post: PostSuccessRes
 
         setTimeout(() => setIsLiking(false), 1000)
     }
-
-    console.log(post.donation)
 
     return (
         <CardFooter className='p-2 z-10'>

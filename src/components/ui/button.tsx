@@ -10,9 +10,10 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-sky-500 text-primary-foreground hover:bg-sky-500/90",
-        defaultRounded: "bg-sky-500 hover:bg-sky-600 transition-colors duration-200 shadow-md border-2 border-zinc-50 rounded-full",
+        defaultRounded: "bg-sky-500 hover:bg-sky-600 transition-colors duration-200 shadow-md border-2 border-zinc-50 rounded-full text-white",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        destructiveRounded: "bg-destructive hover:bg-destructive/90 transition-colors duration-200 shadow-md border-2 border-zinc-50 rounded-full text-white",
         outline:
           "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         secondary:
@@ -37,7 +38,7 @@ const buttonVariants = cva(
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  VariantProps<typeof buttonVariants> {
   asChild?: boolean
 }
 

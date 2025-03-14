@@ -27,13 +27,14 @@ export default async function PostPage({ params }: { params: { id: string } }) {
                     <PostContent post={post} />
                     <PostFooter user={user} post={post} />
 
-                    <div className="border-y">
+                    {/* <div className="border-y">
                         <div className='px-10 py-5'>
                             <PostHeader hasOptionsButton={false} user={user} author={author} post={post} />
                             <CommentForm postId={id} userId={user.id} />
                         </div>
-                    </div>
-                    <div className='p-5'>
+                    </div> */}
+                    
+                    <div className='p-5 border-t'>
                         <h2 className='text-xl text-zinc-800'>Comentários</h2>
                         {comments && comments.length > 0 ? comments.map(({ comment, author }, index) => (
                             <Comment user={user} key={index} author={author} comment={comment} />

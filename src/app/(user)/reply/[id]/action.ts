@@ -7,6 +7,7 @@ export async function getReply(replyId: string) {
     const { token } = await getAuthUser()
 
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/comment/show/${replyId}`, {
+        cache: 'force-cache',
         headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -15,10 +16,16 @@ export async function getReply(replyId: string) {
     })
 
     const { data } = await response.json()
-
+    
     return {
         reply: data.reply,
-        post: data.post,
-        comment: data.parent_comment
+        post: {
+            author: data.post.author,
+            ...data.post.post
+        },
+        comment: data.parent_comment && {
+            author: data.parent_comment.author,
+            ...data.parent_comment.comment
+        }
     }
 }

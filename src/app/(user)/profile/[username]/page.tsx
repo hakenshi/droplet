@@ -1,19 +1,23 @@
+import FollowButton from '@/components/buttons/follow-button'
+import { AspectRatio } from '@/components/ui/aspect-ratio'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import UserEditProfileDialog from '@/components/user-profile/user-edit-profile-dialog'
 import UserProfileTabs from '@/components/user-profile/user-profile-tabs'
-import Image from 'next/image'
-import React, { use } from 'react'
-import { getUserLikedPosts, getUserPosts, getUserProfile } from '../actions'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { AspectRatio } from '@/components/ui/aspect-ratio'
 import { getAuthUser } from '@/utils/getAuthUser'
+import Image from 'next/image'
+import { getFollowUsers, getUserLikedPosts, getUserPosts, getUserProfile } from '../actions/actions'
+import UnfollowButton from '@/components/buttons/unfollow-button'
 
 export default async function ProfilePage({ params }: { params: { username: string } }) {
 
     const { username } = await params
     const user = await getUserProfile(username)
-    const {user: authUser} = await getAuthUser()
+    const { user: authUser } = await getAuthUser()
     const { posts } = await getUserPosts(username)
     const { likedPosts } = await getUserLikedPosts(user.username)
+    const { following, followers } = await getFollowUsers(user.username)
+
+    console.log(following.is_following, followers.is_follower)
 
     return (
         <div className='grid grid-rows-[0.65fr,auto,1fr] max-h-screen overflow-y-scroll px-5 no-scroll-bar'>
@@ -61,7 +65,11 @@ export default async function ProfilePage({ params }: { params: { username: stri
                                 </li>
                             </ul>
                         </div>
-                        <UserEditProfileDialog user={user} />
+                        {user.username === authUser.username ? <UserEditProfileDialog user={user} /> : (
+                            !following.is_following ?
+                                <FollowButton user={user} />
+                                : <UnfollowButton user={user} />
+                        )}
                     </div>
                 </div>
                 <UserProfileTabs user={authUser} posts={posts as unknown as PostSuccessResponse[]} likedPosts={likedPosts} />

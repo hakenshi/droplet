@@ -9,11 +9,19 @@ import UnfollowButton from '@/components/buttons/unfollow-button'
 
 interface FollowCardProps {
     followData: User
-    isFollowing?: boolean
+    canUnfollow?: boolean
     currentTab: 'followers' | 'following'
 }
 
-function FollowCard({ followData, currentTab }: FollowCardProps) {
+interface FollowProps {
+    user: User
+    followers: FollowResponse['followers']
+    following: FollowResponse['following']
+    canUnfollow?: boolean
+}
+
+function FollowCard({ followData, currentTab, canUnfollow }: FollowCardProps) {
+
     return (
         <Card>
             <CardContent className='p-5 flex justify-between items-center'>
@@ -32,14 +40,14 @@ function FollowCard({ followData, currentTab }: FollowCardProps) {
                     </div>
                 </Link>
                 <div>
-                    {currentTab == 'following' && <UnfollowButton user={followData} />}
+                    {currentTab == 'following' && canUnfollow ? <UnfollowButton user={followData} /> : ""}
                 </div>
             </CardContent>
         </Card>
     )
 }
 
-export default function Follow({ user, followers, following }: { user: User, followers: FollowResponse['followers'], following: FollowResponse['following'] }) {
+export default function Follow({ user, followers, following, canUnfollow }: FollowProps) {
 
     const [tab, setTab] = useState<'followers' | "following">('followers')
 
@@ -63,10 +71,10 @@ export default function Follow({ user, followers, following }: { user: User, fol
                     <Button onClick={() => setTab('following')}>Seguindo</Button>
                 </div>
             </div>
-            <div>
+            <div className='space-y-5'>
                 <p className='capitalize font-bold text-zinc-800 text-2xl p-2 mb-5'>{tab === "followers" ? "Seguidores" : "Seguindo"}</p>
                 {tab === 'following' && followers.user_followers.map(follower => (
-                    <FollowCard key={follower.id} followData={follower} currentTab={tab} />
+                    <FollowCard key={follower.id} followData={follower} currentTab={tab} canUnfollow={canUnfollow} />
                 ))}
                 {tab === 'followers' && following.following_users.map(following => (
                     <FollowCard key={following.id} followData={following} currentTab={tab} />

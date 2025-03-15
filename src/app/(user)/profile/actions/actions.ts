@@ -27,6 +27,10 @@ export async function getUserProfile(username: string): Promise<User> {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
+        cache: "force-cache",
+        next: {
+          tags: [`${username}-profile`],
+        },
       },
     );
 
@@ -307,7 +311,9 @@ export async function deletePost(postId: string) {
   }
 }
 
-export async function getFollowUsers(username: string) {
+export async function getFollowUsers(
+  username: string,
+): Promise<FollowResponse> {
   try {
     const { token } = await getAuthUser();
 
@@ -318,6 +324,10 @@ export async function getFollowUsers(username: string) {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
           Accept: "application/json",
+        },
+        cache: "force-cache",
+        next: {
+          tags: [`follows`],
         },
       },
     );
@@ -363,7 +373,7 @@ export async function followUser(username: string, id: number) {
       const errorText = await response.text();
       throw new Error(`Failed to follow user "${username}": ${errorText}`);
     }
-    revalidateTag("userProfile");
+    revalidateTag("follows");
     return response.json();
   } catch (error) {
     const detailedMessage =
@@ -393,7 +403,8 @@ export async function unfollowUser(username: string, id: number) {
       const errorText = await response.text();
       throw new Error(`Failed to unfollow user "${username}": ${errorText}`);
     }
-    revalidatePath(`/profile/${username}`)
+    revalidateTag("follows");
+    
   } catch (error) {
     const detailedMessage =
       error instanceof Error ? error.message : "Unknown error";

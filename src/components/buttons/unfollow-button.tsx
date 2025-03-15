@@ -15,7 +15,7 @@ export default function UnfollowButton({ user }: { user: User }) {
         await unfollowUser(user.username, user.id)
         setIsOpen(false)
     }
-    
+
     return (
         <Dialog onOpenChange={setIsOpen} open={isOpen}>
             <DialogTrigger asChild>

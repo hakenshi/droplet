@@ -7,6 +7,7 @@ import { getAuthUser } from '@/utils/getAuthUser'
 import Image from 'next/image'
 import { getFollowUsers, getUserLikedPosts, getUserPosts, getUserProfile } from '../actions/actions'
 import UnfollowButton from '@/components/buttons/unfollow-button'
+import Link from 'next/link'
 
 export default async function ProfilePage({ params }: { params: { username: string } }) {
 
@@ -16,8 +17,6 @@ export default async function ProfilePage({ params }: { params: { username: stri
     const { posts } = await getUserPosts(username)
     const { likedPosts } = await getUserLikedPosts(user.username)
     const { following, followers } = await getFollowUsers(user.username)
-
-    console.log(following.is_following, followers.is_follower)
 
     return (
         <div className='grid grid-rows-[0.65fr,auto,1fr] max-h-screen overflow-y-scroll px-5 no-scroll-bar'>
@@ -62,6 +61,14 @@ export default async function ProfilePage({ params }: { params: { username: stri
                                 </li>
                                 <li className='text-sm text-zinc-600'>
                                     {user.bio}
+                                </li>
+                                <li className='flex gap-2 text-sm'>
+                                    <Link href={`/profile/${user.username}/follows`} className='text-zinc-500 hover:text-zinc-800'>
+                                        <span className='font-medium'>{following.count}</span> seguidores
+                                    </Link>
+                                    <Link href={`/profile/${user.username}/follows`} className='text-zinc-500 hover:text-zinc-800'>
+                                        <span className='font-medium'>{followers.count}</span> seguindo
+                                    </Link>
                                 </li>
                             </ul>
                         </div>

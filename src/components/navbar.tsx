@@ -7,6 +7,7 @@ import Link from 'next/link'
 import Logout from './logout'
 
 import UserPostDialog from "@/components/user-profile/user-post-dialog"
+import NotificationButton from './buttons/notification-button'
 
 export default async function Navbar() {
 
@@ -39,11 +40,7 @@ export default async function Navbar() {
                         </Link>
                     </li>
                     <li>
-                        <Link
-                            className='flex items-center gap-2 hover:bg-zinc-100/35 transition-colors px-4 py-2 rounded-full w-full'
-                            href={"/"}>
-                            <BellIcon />
-                            Notificação</Link>
+                        <NotificationButton />
                     </li>
 
                     <li>

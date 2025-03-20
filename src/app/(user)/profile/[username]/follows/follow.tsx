@@ -2,10 +2,11 @@
 
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import UnfollowButton from '@/components/buttons/unfollow-button'
+import { useReverb } from '@/lib/hooks/useReverb'
 
 interface FollowCardProps {
     followData: User
@@ -51,6 +52,26 @@ export default function Follow({ user, followers, following, canUnfollow }: Foll
 
     const [tab, setTab] = useState<'followers' | "following">('followers')
 
+    const { listen, channel } = useReverb('test.event')
+
+    const testSocket = async () => {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/send-notification`)
+        const data = await response.json()
+        console.log(data)
+    }
+
+    useEffect(() => {
+        // console.log(channel)
+
+        console.log(listen('test-notification', (data: any) => {
+            console.log(data.message)
+        }))
+        
+        listen('test-notification', (data: any) => {
+            console.log(data.message)
+        })
+    }, [listen])
+
     return (
         <div className='grid grid-rows-[0.1fr_auto] gap-4 border border-collapse border-zinc-300 rounded-md p-5'>
             <div className='flex items-start justify-between'>
@@ -69,6 +90,7 @@ export default function Follow({ user, followers, following, canUnfollow }: Foll
                 <div className='space-x-5'>
                     <Button onClick={() => setTab('followers')}>Seguidores</Button>
                     <Button onClick={() => setTab('following')}>Seguindo</Button>
+                    <Button onClick={testSocket}>Test Socket</Button>
                 </div>
             </div>
             <div className='space-y-5'>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import { MoneyProvider } from "@/lib/hooks/useMoney";
+import { ReverbProvider } from "@/lib/hooks/useReverb";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,7 +25,9 @@ export default function RootLayout({
         className={`${geistSans.className} antialiased`}
         cz-shortcut-listen="true"
       >
-        <MoneyProvider>{children}</MoneyProvider>
+        <MoneyProvider>
+            {children}
+        </MoneyProvider>
       </body>
     </html>
   );

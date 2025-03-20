@@ -1,5 +1,6 @@
 <?php
 
+use App\Events\TestNotification;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FollowController;
@@ -11,6 +12,10 @@ use Illuminate\Support\Facades\Route;
 Route::post('login', [AuthController::class, 'login']);
 Route::post('register', [AuthController::class, 'register']);
 
+Route::get('send-notification', function (){
+    event(new TestNotification("Hello World"));
+    return response()->json(['message' => 'Notification sent']);
+});
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);

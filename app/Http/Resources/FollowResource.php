@@ -22,12 +22,12 @@ class FollowResource extends JsonResource
         return [
             'followers' => [
                 'count' => $this->followers()->count(),
-                'user_followers' => $this->followers,
+                'user_followers' => UserResource::collection($this->followers),
                 'is_follower' => $is_follower,
             ],
             'following' => [
                 'count' => $this->following()->count(),
-                'following_users' => $this->following,
+                'following_users' => UserResource::collection($this->following),
                 'is_following' => $is_following,
             ],
         ];

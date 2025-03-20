@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NewFollowerNotification;
 use App\Http\Resources\FollowResource;
 use App\Models\Follow;
 use App\Models\User;
@@ -28,13 +29,15 @@ class FollowController extends Controller
             'status' => $user->private_profile ? 'pending' : "accepted"
         ]);
 
+        event(new NewFollowerNotification($newFollow, $user));
+
         return response()->json($newFollow, 201);
     }
 
     public function unfollowUser(string $username)
     {
         $user = User::where("username", $username)->firstOrFail();
-        $user->following()->detach();
+        $user->following()->detach(auth()->user()->id);
         return response()->noContent();
     }
 

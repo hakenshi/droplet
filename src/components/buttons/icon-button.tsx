@@ -32,7 +32,7 @@ export default function IconButton({ children, Icon, color, hasHoverEffect = tru
             data-prevent-redirect="true"
             {...rest}
         >
-            <div className='flex items-center gap-3 w-full'>
+            <div className='flex items-center w-full gap-3'>
                 <Icon color={(isHovering || hasLiked) ? colors[color] : "#000"} fill={(hasHoverEffect && isHovering) || hasLiked ? colors[color] : "#fff"} />
                 {children}
             </div>

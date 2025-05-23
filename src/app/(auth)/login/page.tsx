@@ -65,9 +65,9 @@ export default function Login() {
 
   return (
     <div className='h-screen bg-zinc-100 grid place-items-center'>
-      <div className='grid grid-cols-2 max-w-5xl w-full bg-white rounded-2xl h-2/3 shadow-md gap-10'>
-        <div className='bg-gradient-to-br text-white from-blue-600 via-sky-500 to-lime-100 p-5 rounded-tl-2xl rounded-bl-2xl'>
-          <div className='flex flex-col justify-evenly items-center h-3/4 space-y-6'>
+      <div className='grid grid-cols-2 w-full max-w-5xl h-2/3 bg-white rounded-2xl shadow-md gap-10'>
+        <div className='p-5 text-white bg-gradient-to-br from-blue-600 via-sky-500 to-lime-100 rounded-tl-2xl rounded-bl-2xl'>
+          <div className='flex flex-col h-3/4 justify-evenly items-center space-y-6'>
             <div className='inline-flex items-center justify-center space-x-4'>
               <Image src={"/logo.png"} alt='droplet logo' width={75} height={75} />
               <p className='font-black text-5xl'>DROPLET</p>
@@ -77,42 +77,18 @@ export default function Login() {
             </p>
           </div>
         </div>
-        <div className='py-5 flex flex-col gap-5 justify-evenly'>
-          <p className='text-2xl font-semibold'>Faça login</p>
-          <form onSubmit={submit} className='flex flex-col gap-5'>
-            <div className='bg-zinc-100 rounded-full px-4 py-5 w-11/12 flex gap-4 text-zinc-600'>
-              <Mail />
-              <input name='email' placeholder='E-mail' type="text" className='w-full bg-zinc-100 focus:outline-none font-medium text-zinc-600' />
-            </div>
-            {errors?.errors?.email && <span className='text-red-500 px-4 text-sm'>{errors.errors.email}</span>}
-            <div className='bg-zinc-100 rounded-full px-4 py-5 w-11/12 flex gap-4 text-zinc-600'>
-              <Lock />
-              <input name='password' placeholder='Senha' type="password" className='w-full bg-zinc-100 focus:outline-none font-medium text-zinc-600' />
-            </div>
-            {errors?.errors?.password && <span className='text-red-500 px-4 text-sm'>{errors.errors.password}</span>}
-            <div className='rounded-md px-2 py-4 w-11/12 flex flex-col gap-2 text-zinc-600'>
-              <Button disabled={loading} className={`w-full rounded-full uppercase font-bold ${buttonColors[buttonState]}`}>
-                {loading ? (<span className='loader'></span>) : "Entrar"}
-              </Button>
-              <div className='flex justify-between p-2'>
-                <Link className='hover:text-zinc-800' href={"/register"}>Inscreva-se</Link>
-                <Link className='hover:text-zinc-800' href={"/reset-password"}>Esqueceu a senha?</Link>
-              </div>
-            </div>
-          </form>
-          <div className='flex flex-col gap-5'>
-            <div className='rounded-md px-2 w-11/12 flex gap-2 text-white'>
-              <Button className='w-full bg-sky-white rounded-full text-black hover:bg-zinc-200 border items-center flex gap-10'>
-                <Image src={"/google-logo.png"} alt='google logo' width={30} height={30} />
-                <span className='uppercase font-bold'>Iniciar sessão com o google</span>
-              </Button>
-            </div>
-            <div className='rounded-md px-2 w-11/12 flex gap-2'>
-              <Button className='w-full bg-sky-white rounded-full text-black hover:bg-zinc-200 border items-center flex gap-10'>
-                <Image src={"/twitter-x-logo.png"} alt='twitter logo' width={30} height={30} />
-                <span className='uppercase font-bold'>Iniciar sessão com o twitter</span>
-              </Button>
-            </div>
+        <div className='flex flex-col gap-5'>
+          <div className='rounded-md px-2 w-11/12 flex gap-2 text-white'>
+            <Button className='w-full flex items-center gap-10 text-black bg-sky-white border rounded-full hover:bg-zinc-200'>
+              <Image src={"/google-logo.png"} alt='google logo' width={30} height={30} />
+              <span className='uppercase font-bold'>Iniciar sessão com o google</span>
+            </Button>
+          </div>
+          <div className='rounded-md px-2 w-11/12 flex gap-2'>
+            <Button className='w-full flex items-center gap-10 text-black bg-sky-white border rounded-full hover:bg-zinc-200'>
+              <Image src={"/twitter-x-logo.png"} alt='twitter logo' width={30} height={30} />
+              <span className='uppercase font-bold'>Iniciar sessão com o twitter</span>
+            </Button>
           </div>
         </div>
       </div>

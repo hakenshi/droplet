@@ -21,7 +21,7 @@ export default async function ProfilePage({ params }: { params: { username: stri
     return (
         <div className='grid grid-rows-[0.65fr,auto,1fr] max-h-screen overflow-y-scroll px-5 no-scroll-bar'>
             <AspectRatio ratio={12 / 3}>
-                <div className='flex justify-center '>
+                <div className='flex justify-center'>
                     {user.cover_image ? (
                         <Image
                             className='object-cover rounded-md'
@@ -31,7 +31,7 @@ export default async function ProfilePage({ params }: { params: { username: stri
                             alt={`${user.name}'s background image`}
                         />
                     ) :
-                        <div className='bg-gradient-to-br from-blue-800 via-sky-500 to-lime-300 w-full h-full rounded-md flex items-center justify-center'>
+                        <div className='flex items-center justify-center w-full h-full rounded-md bg-gradient-to-br from-blue-800 via-sky-500 to-lime-300'>
                         </div>
                     }
                 </div>

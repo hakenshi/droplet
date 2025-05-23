@@ -14,21 +14,21 @@ export default async function Navbar() {
     const { user } = await getAuthUser()
 
     return (
-        <header className=" text-white h-screen bg-gradient p-5 shadow-xl">
+        <header className=" text-white lg:h-screen h-[90px] flex items-center bg-gradient p-5 shadow-xl order-3 lg:order-1">
             <nav
-                className="min-w-44 grid grid-rows-[0.1fr_auto_0.1fr] h-full gap-5 justify-items-center place-items-center">
-                <Link href={"/"} className="flex items-center gap-2">
+                className="lg:min-w-44 w-full flex items-center justify-center lg:grid grid-rows-[0.1fr_auto_0.1fr] h-[100px] lg:h-full gap-5">
+                <Link href={"/"} className="lg:flex items-center gap-2 hidden ">
                     <Image src={"/logo.png"} alt="droplet logo" width={50} height={50} />
-                    <p className="font-black text-2xl">DROPLET</p>
+                    <p className="text-2xl font-black">DROPLET</p>
                 </Link>
 
-                <ul className="flex flex-col gap-5 w-11/12">
+                <ul className="flex justify-center lg:flex-col gap-2 lg:w-11/12 ">
                     <li>
                         <Link
                             className='flex items-center gap-2  hover:bg-zinc-100/35 transition-colors px-4 py-2 rounded-full w-full'
                             href={"/"}>
                             <HouseIcon />
-                            Home
+                            <span className='hidden lg:flex'>Home</span>
                         </Link>
                     </li>
                     <li>
@@ -36,7 +36,7 @@ export default async function Navbar() {
                             className='flex items-center gap-2  hover:bg-zinc-100/35 transition-colors px-4 py-2 rounded-full w-full'
                             href={`/profile/${user.username}`}>
                             <User />
-                            Perfil
+                            <span className='hidden lg:flex'>Perfil</span>
                         </Link>
                     </li>
                     <li>
@@ -48,28 +48,31 @@ export default async function Navbar() {
                             className={`flex items-center gap-2 hover:bg-zinc-100/35 transition-colors px-4 py-2 rounded-full w-full`}
                             href={"/"}>
                             <Bookmark />
-                            Coleções</Link>
+                            <span className='hidden lg:flex'>Coleções</span>
+                        </Link>
                     </li>
 
                     <li>
                         <UserPostDialog user={user} >
                             <button className='flex items-center gap-2 bg-transparent hover:bg-zinc-100/35 transition-colors px-4 py-2 rounded-full w-full'>
                                 <MessageCircleIcon />
-                                Postar
+                                <span className='hidden lg:flex'>Postar</span>
                             </button>
                         </UserPostDialog>
                     </li>
+                    
                 </ul>
+
                 <DropdownMenu>
                     <DropdownMenuTrigger
-                        className="flex items-center gap-5 hover:bg-zinc-100/35 transition-colors duration-200 p-2 rounded-full w-full">
+                        className="flex items-center justify-center gap-5 hover:bg-zinc-100/35 transition-colors duration-200 p-2 rounded-full lg:w-full">
                         <Avatar>
                             <AvatarImage src={user.profile_image} alt="avatar" />
-                            <AvatarFallback className="bg-sky-500 text-white">
+                            <AvatarFallback className="bg-rose-500 text-white">
                                 {user.username.toUpperCase().substring(0, 2)}
                             </AvatarFallback>
                         </Avatar>
-                        <span>
+                        <span className='hidden lg:flex'>
                             {user.username}
                         </span>
                     </DropdownMenuTrigger>
@@ -80,6 +83,7 @@ export default async function Navbar() {
                         <Logout user={user} />
                     </DropdownMenuContent>
                 </DropdownMenu>
+
             </nav>
         </header>
     )

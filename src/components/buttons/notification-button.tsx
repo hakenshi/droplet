@@ -10,6 +10,6 @@ export default function NotificationButton() {
             className='flex items-center gap-2 hover:bg-zinc-100/35 transition-colors px-4 py-2 rounded-full w-full'
             href={"/"}>
             <BellIcon />
-            Notificação
+            <span className="hidden lg:flex">Notificação</span>
         </Link>)
 }

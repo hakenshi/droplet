@@ -9,7 +9,7 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/h
 import { useMoney } from "@/lib/hooks/useMoney";
 import { CalendarIcon, CircleDollarSignIcon, ImageIcon } from "lucide-react";
 import React, { FormEvent, useState } from 'react';
-import MoneyInput from '../inputs/money-input';
+import MoneyInput from '../moneyInput/money-input';
 
 interface PostFormData {
     post: string;

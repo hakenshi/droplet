@@ -7,26 +7,34 @@ import Link from 'next/link'
 import React, { FormEvent, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { storeToken } from '../login/actions'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { toast } from 'sonner'
+import FormInput from '@/components/formInput/FormInput'
 
-const buttonColors = {
-    'default': 'bg-sky-500 hover:bg-sky-600',
-    'error': 'bg-red-600 hover:bg-red-700',
-    'success': 'bg-green-500 hover:bg-green-600',
-}
+
+const RegisterFormSchema = z.object({
+    username: z.string()
+        .min(3, { message: "O usuario precisa ter pelo menos 3 letras" })
+        .regex(/^([a-z\\\\-]+)$/i, { message: "O usuario pode ter apenas letras e hifens" })
+        .transform((username) => username.toLowerCase()),
+    email: z.string().email({ message: "Insira um email valido" }),
+    password: z.string().min(8, { message: "A senha deve conter no minimo 8 digitos " })
+})
+
+type RegisterFormdata = z.infer<typeof RegisterFormSchema>
 
 export default function Register() {
 
     const router = useRouter()
 
-    const [errors, setErrors] = useState<ApiErrorResponse<AuthErrorResponse> | null>(null)
-    const [loading, setLoading] = useState(false)
-    const [buttonState, setButtonState] = useState<'default' | 'error' | 'success'>('default')
+    const { handleSubmit, register, formState: { isSubmitting, errors } } = useForm<RegisterFormdata>({
+        resolver: zodResolver(RegisterFormSchema)
+    })
 
-    const submit = async (e: FormEvent) => {
-        e.preventDefault()
-        setLoading(true)
-        const form = new FormData(e.target as HTMLFormElement)
-        const formData = Object.fromEntries(form.entries())
+    async function submit(formData: RegisterFormdata) {
+
 
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/register`, {
             headers: {
@@ -39,83 +47,100 @@ export default function Register() {
 
         const data: AuthResponse = await response.json()
 
-        if ('errors' in data) {
-            setErrors({ errors: data.errors, message: data.message })
-            setButtonState('error')
-            setLoading(false)
-            return
+        if (!response.ok) {
+            return toast.error(data.message)
         }
+
+
         const { status } = await storeToken(data)
 
-        if (status === 200) {
-            setButtonState('success')
-            setLoading(false)
-            router.replace("/")
+        if (status !== 200) {
+            return toast.error("Token Storage was failed")
         }
+
+        router.replace("/")
     }
 
     return (
-        <div className='h-screen bg-zinc-100 grid place-items-center'>
-            <div className='grid grid-cols-2 max-w-5xl w-full bg-white rounded-2xl min-h-2/3 shadow-md gap-10'>
-                <div className='bg-gradient-to-br text-white from-blue-600 via-sky-500 to-lime-100 p-5 rounded-tl-2xl rounded-bl-2xl'>
-                    <div className='flex flex-col justify-evenly items-center h-3/4 space-y-6'>
+        <section className=' flex flex-col items-center justify-center w-full h-screen bg-zinc-100'>
+            <div className='flex flex-col lg:grid grid-cols-2 gap-10 rounded-2xl bg-white shadow-md mt-20 lg:mt-0'>
+
+                <div className='h-full rounded-tl-2xl rounded-bl-2xl bg-gradient p-5 text-white'>
+                    <div className='flex h-3/4 flex-col items-center justify-evenly space-y-6'>
                         <div className='inline-flex items-center justify-center space-x-4'>
                             <Image src={"/logo.png"} alt='droplet logo' width={75} height={75} />
-                            <p className='font-black text-5xl'>DROPLET</p>
+                            <p className='text-4xl lg:text-5xl font-black'>DROPLET</p>
                         </div>
-                        <p className='text-center font-bold text-xl px-8'>
+                        <p className='px-8 text-center text-xl font-bold'>
                             Liberdade para criar
                         </p>
                     </div>
                 </div>
-                <div className='py-6 flex flex-col gap-5 justify-evenly'>
+
+                <div className='flex flex-col justify-evenly gap-5 py-5 px-5 '>
                     <p className='text-2xl font-semibold'>Inscreva-se</p>
-                    <form onSubmit={submit} className='flex flex-col gap-5'>
-                        <div className='bg-zinc-100 rounded-full px-4 py-5 w-11/12 flex gap-4 text-zinc-600'>
-                            <User />
-                            <input name='username' placeholder='Nome de usuário' type="text" className='w-full bg-zinc-100 focus:outline-none font-medium text-zinc-600' />
+
+                    <form onSubmit={handleSubmit(submit)} className='flex flex-col gap-2'>
+
+                        <div className='flex flex-col gap-2'>
+                            <div className='flex w-11/12 items-center gap-2'>
+                                <User />
+                                <FormInput placeholder='Nome de usuário' type="text" {...register("username")} />
+                            </div>
+                            {errors?.username && (<span className="px-4 text-sm text-red-500">{errors.username.message}</span>)}
                         </div>
-                        {errors?.errors?.username && <span className='text-red-500 px-4 text-sm'>{errors.errors.username.join(', ')}</span>}
-                        <div className='bg-zinc-100 rounded-full px-4 py-5 w-11/12 flex gap-4 text-zinc-600'>
-                            <Mail />
-                            <input name='email' placeholder='E-mail' type="text" className='w-full bg-zinc-100 focus:outline-none font-medium text-zinc-600' />
+
+                        <div className='flex flex-col gap-2'>
+                            <div className='flex w-11/12 items-center gap-2'>
+                                <Mail />
+                                <FormInput placeholder='E-mail' type="email" {...register("email")} />
+                            </div>
+                            {errors?.email && (<span className="px-4 text-sm text-red-500">{errors.email.message}</span>)}
                         </div>
-                        {errors?.errors?.email && <span className='text-red-500 px-4 text-sm'>{errors.errors.email.join(', ')}</span>}
-                        <div className='bg-zinc-100 rounded-full px-4 py-5 w-11/12 flex gap-4 text-zinc-600'>
-                            <Lock />
-                            <input name='password' placeholder='Senha' type="password" className='w-full bg-zinc-100 focus:outline-none font-medium text-zinc-600' />
+
+                        <div className='flex flex-col gap-2'>
+                            <div className='flex w-11/12 items-center gap-2'>
+                                <Lock />
+                                <FormInput placeholder="Senha" type="password" {...register("password")} />
+                            </div>
+                            {errors?.password && (<span className="px-4 text-sm text-red-500">{errors.password.message}</span>)}
                         </div>
-                        {errors?.errors?.password && <span className='text-red-500 px-4 text-sm'>{errors.errors.password.join(', ')}</span>}
+
                         <div className='px-2 py-5 w-11/12 flex gap-4 text-zinc-600'>
                             <input type="checkbox" name="terms" id="terms" />
                             <label htmlFor="terms">Aceito os termos de uso e a políticas de privacidade</label>
                         </div>
+
                         <div className='rounded-md p-2 w-11/12 flex flex-col gap-2 text-zinc-600'>
-                            <Button disabled={loading} className={`w-full rounded-full uppercase font-bold ${buttonColors[buttonState]}`}>
-                                {loading ? (<span className='loader'></span>) : "Cadastrar"}
-                            </Button>
+                            <Button disabled={isSubmitting} className={`rounded-full uppercase font-bold`}>Cadastrar</Button>
                             <div className='flex justify-between p-2'>
                                 <Link className='hover:text-zinc-800' href={"/"}>Acessar</Link>
                                 <Link className='hover:text-zinc-800' href={"/reset-password"}>Esqueceu a senha?</Link>
                             </div>
                         </div>
+
                     </form>
-                    <div className='flex flex-col gap-5'>
-                        <div className='rounded-md px-2 w-11/12 flex gap-2 text-white'>
-                            <Button className='w-full bg-sky-white rounded-full text-black hover:bg-zinc-200 border items-center flex gap-10'>
-                                <Image src={"/google-logo.png"} alt='google logo' width={30} height={30} />
-                                <span className='uppercase font-bold'>Iniciar sessão com o google</span>
+
+                    <div className="flex flex-col gap-5">
+                        <div className="flex gap-2 rounded-md text-white">
+                            <Button className="flex w-full items-center gap-4 px-8 rounded-full border bg-sky-white text-black hover:bg-zinc-200">
+                                <Image src="/google-logo.png" alt="google logo" width={25} height={25} />
+                                <span className="font-bold uppercase text-sm">Iniciar sessão com o google</span>
                             </Button>
                         </div>
-                        <div className='rounded-md px-2 w-11/12 flex gap-2'>
-                            <Button className='w-full bg-sky-white rounded-full text-black hover:bg-zinc-200 border items-center flex gap-10'>
-                                <Image src={"/twitter-x-logo.png"} alt='twitter logo' width={30} height={30} />
-                                <span className='uppercase font-bold'>Iniciar sessão com o twitter</span>
+
+                        <div className="flex gap-2 rounded-md ">
+                            <Button className="flex w-full items-center gap-4 px-8 rounded-full border bg-sky-white text-black hover:bg-zinc-200">
+                                <Image src="/twitter-x-logo.png" alt="twitter logo" width={25} height={25} />
+                                <span className="font-bold uppercase text-sm">Iniciar sessão com o twitter</span>
                             </Button>
                         </div>
+
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
+
+
     )
 }

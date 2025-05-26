@@ -8,61 +8,61 @@ import React, { FormEvent, useState } from 'react'
 import { storeToken } from './actions'
 import { useRouter } from 'next/navigation'
 import { Input } from '@/components/ui/input'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { toast } from "sonner"
 
-const buttonColors = {
-  'default': 'bg-sky-500 hover:bg-sky-600',
-  'error': 'bg-red-600 hover:bg-red-700',
-  'success': 'bg-green-500 hover:bg-green-600',
-}
+
+const LoginFormSchema = z.object({
+  email: z.string().email({ message: "Insira um email valido" }),
+  password: z.string().min(8, { message: "A senha deve conter no minimo 8 digitos " })
+})
+
+type LoginFormdata = z.infer<typeof LoginFormSchema>
 
 export default function Login() {
 
   const router = useRouter()
 
-  const [errors, setErrors] = useState<ApiErrorResponse<AuthErrorResponse> | null>(null)
+  const { handleSubmit, register, formState: { isSubmitting, errors } } = useForm<LoginFormdata>({
+    resolver: zodResolver(LoginFormSchema)
+  })
 
-  const [loading, setLoading] = useState(false)
-  const [buttonState, setButtonState] = useState<'default' | 'error' | 'success'>('default')
-
-  const submit = async (e: FormEvent) => {
-
-    e.preventDefault()
-    setLoading(true)
-
-    const form = new FormData(e.target as HTMLFormElement)
-    const formData = Object.fromEntries(form.entries())
+  async function submit (formData: LoginFormdata) {
 
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
       next: {
-        tags: ['auth']
+        tags: ['auth'],
       },
       headers: {
         'Content-Type': 'application/json',
         accept: 'application/json',
       },
-      method: 'POST',
-      body: JSON.stringify(formData),
-    })
-
-    const data: AuthResponse = await response.json()
-
-    if ('errors' in data) {
-      setErrors({ errors: data.errors, message: data.message })
-      setButtonState('error')
-      setLoading(false)
-      return
+      method: "POST",
+      body: JSON.stringify(formData)
     }
-    else {
-      const { status } = await storeToken(data as AuthSuccessResponse)
+    )
 
-      if (status === 200) {
-        setButtonState('success')
-        setLoading(false)
-        router.replace("/")
-      }
+    const data : AuthResponse = await response.json()
 
+    if (!response.ok) {
+      return toast.error(data.message)
     }
+
+
+    const { status } = await storeToken(data)
+
+    if (status !== 200) {
+      return toast.error("Token Storage was failed")
+    }
+
+    router.replace("/")
+
   }
+
+
+
 
   return (
     <div className=" flex flex-col lg:h-screen lg:grid place-items-center bg-zinc-100">
@@ -80,27 +80,27 @@ export default function Login() {
         </div>
         <div className="flex flex-col justify-evenly gap-5 py-5 px-5 ">
           <p className="text-2xl font-semibold">Faça login</p>
-          <form onSubmit={submit} className="flex flex-col gap-5">
+          <form onSubmit={handleSubmit(submit)} className="flex flex-col gap-5">
             <div className="flex w-11/12 items-center gap-4">
               <Mail />
-              <Input name="email" placeholder="E-mail" type="email" />
+              <Input placeholder="E-mail" type="email" {...register("email")} />
             </div>
-            {errors?.errors?.email && (
-              <span className="px-4 text-sm text-red-500">{errors.errors.email}</span>
+            {errors?.email && (
+              <span className="px-4 text-sm text-red-500">{errors.email.message}</span>
             )}
             <div className="flex w-11/12 items-center gap-4">
               <Lock />
-              <Input name="password" placeholder="Senha" type="password" />
+              <Input placeholder="Senha" type="password" {...register("password")} />
             </div>
-            {errors?.errors?.password && (
-              <span className="px-4 text-sm text-red-500">{errors.errors.password}</span>
+            {errors?.password && (
+              <span className="px-4 text-sm text-red-500">{errors.password.message}</span>
             )}
             <div className="flex w-11/12 flex-col gap-2 rounded-md px-2 py-4 text-zinc-600">
               <Button
-                disabled={loading}
-                className={`w-full rounded-full font-bold uppercase ${buttonColors[buttonState]}`}
+                disabled={isSubmitting}
+                className={`w-full rounded-full font-bold uppercase`}
               >
-                {loading ? <span className="loader" /> : "Entrar"}
+                Entrar
               </Button>
               <div className="flex justify-between p-2">
                 <Link className="hover:text-zinc-800" href="/register">

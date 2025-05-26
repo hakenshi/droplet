@@ -3,6 +3,6 @@ interface ApiErrorResponse<T> {
     message: string
 }
 
-interface ApiSucessReponse<T>{
+interface ApiSuccessResponse<T>{
     data: T
 }

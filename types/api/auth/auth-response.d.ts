@@ -1,15 +1,5 @@
-type AuthSuccessResponse = {
+type AuthResponse = {
   user: User
   token: string
+  message?: string
 }
-
-type AuthErrorResponse = {
-  email?: string[]
-  password?: string[]
-  username: string[]
-  name: string[]
-  surname: string[]
-}
-
-type AuthResponse = ApiSucessReponse<AuthSuccessResponse> | ApiErrorResponse<AuthErrorResponse>;
-

@@ -20,7 +20,7 @@ export async function getSession() {
     })
 }
 
-export async function saveSession({ token, user }: AuthSuccessResponse) {
+export async function saveSession({ token, user }: AuthResponse) {
     const session = await getSession()
     session.token = token
     session.user = JSON.stringify(user)

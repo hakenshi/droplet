@@ -6,7 +6,7 @@ import jwt from 'jsonwebtoken';
 import { revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 
-export async function storeToken({ token, user }: AuthSuccessResponse) {
+export async function storeToken({ token, user }: AuthResponse) {
     const webToken = jwt.sign(token, `${process.env.NEXT_JWT_SECRET}`)    
     
     await saveSession({token: webToken, user})

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
-import UserCard from './user-card'
+import UserCard from '../user-card/user-card'
 import Link from 'next/link'
 import Image from 'next/image'
 import FormInput from '../formInput/FormInput'
@@ -10,10 +10,6 @@ import FormInput from '../formInput/FormInput'
 type SideBarProps = {
     users: User[]
 }
-
-
-
-
 
 export default function Sidebar({ users }: SideBarProps) {
 
@@ -30,7 +26,7 @@ export default function Sidebar({ users }: SideBarProps) {
         const filtered = users.filter((user, index) => {
             return user.username.toLowerCase().includes(search.toLowerCase())
         })
-        console.log(filtered)
+        
         setResults(filtered)
 
     }, [search])

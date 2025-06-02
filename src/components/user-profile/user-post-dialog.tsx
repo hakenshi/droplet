@@ -8,8 +8,14 @@ import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogT
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { useMoney } from "@/lib/hooks/useMoney";
 import { CalendarIcon, CircleDollarSignIcon, ImageIcon } from "lucide-react";
-import React, { FormEvent, useState } from 'react';
+import React, { FormEvent, useRef, useState } from 'react';
 import MoneyInput from '../moneyInput/money-input';
+import FormInput from "../formInput/FormInput";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { error } from "console";
+import { Textarea } from "../ui/textarea";
 
 interface PostFormData {
     post: string;
@@ -23,25 +29,60 @@ type UserPostProps = {
     children: React.ReactNode
 }
 
+const PostSchema = z.object({
+    post: z.string({ message: "Esse campo é obrigatorio" }),
+    image: z.optional(z.any()),
+    donation: z.optional(z.string())
+   
+})
+
+type PostSchemaFormdata = z.infer<typeof PostSchema>
+
 export default function UserPostDialog({ id, user, value, children }: UserPostProps) {
 
     const [isOpen, setIsOpen] = useState<boolean>(false)
     const [isDonationOpen, setIsDonationOpen] = useState<boolean>(false)
+    const [selectedImage, setSelectedImage] = useState<File | null>(null)
+    const [imagePreview, setImagePreview] = useState<string | null>(null)
 
     const [isHovering, setIsHovering] = useState<boolean>(false)
     const { clearDonationState, donation, formattedDonation } = useMoney()
+    const inputRef = useRef<HTMLInputElement>(null);
 
-    const handleSubmit = async (e: FormEvent) => {
-        e.preventDefault()
-        const form = new FormData(e.target as HTMLFormElement)
-        const formData = Object.fromEntries(form.entries()) as unknown as PostFormData
-        if (value && id) {
-            await updatePost({ id, user_id: user.id, content: formData.post })
+    const handleButtonClick = () => {
+        inputRef.current?.click();
+    };
+
+    const { handleSubmit, register, formState: { isSubmitting, errors }, setValue, watch } = useForm<PostSchemaFormdata>({
+        resolver: zodResolver(PostSchema)
+    })
+
+   
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+
+        if (file) {
+            setSelectedImage(file);
+            setValue("image", file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
         }
-        else {
-            await storePost({ user_id: user.id, content: formData.post, donation_goal: donation })
-        }
+    };
+  
+    async function SubmitPost(data: PostSchemaFormdata) {
+
+        
+        console.log(data)
+
+        value && id ? await updatePost({ id, user_id: user.id, content: data.post }) :
+        await storePost({ user_id: user.id, content: data.post, donation_goal: donation })
+
         setIsOpen(false)
+        setSelectedImage(null)
+        setImagePreview(null)
     }
 
 
@@ -57,6 +98,8 @@ export default function UserPostDialog({ id, user, value, children }: UserPostPr
         setIsHovering(false)
         setIsDonationOpen(false)
     }
+
+    
 
     return (
         <Dialog onOpenChange={setIsOpen} open={isOpen}>
@@ -81,9 +124,29 @@ export default function UserPostDialog({ id, user, value, children }: UserPostPr
                     </DialogTitle>
                 </DialogHeader>
                 <div className='max-h-96 h-full'>
-                    <form onSubmit={handleSubmit} className='space-y-2'>
+                    <form onSubmit={handleSubmit(SubmitPost)} className='space-y-2'>
                         <div>
-                            <ResizeableTextArea placeholder='Qual seu pensamento?' defaultValue={value} name={'post'} />
+                            <ResizeableTextArea placeholder="Qual é o seu Pensamento" {...register("post")} defaultValue={value}/>
+                            {errors?.post && (<span className="px-4 text-sm text-red-500">{errors.post.message}</span>)}
+                            {imagePreview && (
+                                <div className="relative mt-2">
+                                    <img
+                                        src={imagePreview}
+                                        alt="Preview"
+                                        className="max-h-48 rounded-lg object-cover"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setSelectedImage(null);
+                                            setImagePreview(null);
+                                        }}
+                                        className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full hover:bg-black/70"
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            )}
                             <div className='text-zinc-500 text-sm px-2 pt-2'>
                                 {formattedDonation && formattedDonation != "0.00" && !isDonationOpen && (<div className='flex items-center gap-2'>
                                     <p>Meta de doação: ${formattedDonation}</p>
@@ -96,6 +159,7 @@ export default function UserPostDialog({ id, user, value, children }: UserPostPr
                                 <HoverCard openDelay={1} closeDelay={1}>
                                     <HoverCardTrigger asChild>
                                         <button type='button'
+                                            onClick={handleButtonClick}
                                             className='hover:bg-sky-500/10 p-2 rounded-full hover:text-sky-500 hover:cursor-pointer transition-colors'>
                                             <ImageIcon />
                                         </button>
@@ -104,6 +168,13 @@ export default function UserPostDialog({ id, user, value, children }: UserPostPr
                                         Adicionar imagem à postagem
                                     </HoverCardContent>
                                 </HoverCard>
+                                <input
+                                    type="file"
+                                    ref={inputRef}
+                                    onChange={handleFileChange}
+                                    accept="image/*"
+                                    className="hidden"
+                                />
                                 <HoverCard openDelay={1} closeDelay={1}>
                                     <HoverCardTrigger asChild>
                                         <button type='button'
@@ -128,7 +199,7 @@ export default function UserPostDialog({ id, user, value, children }: UserPostPr
                                                     <DialogHeader>
                                                         <DialogTitle>Adicionar meta de doação à postagem</DialogTitle>
                                                     </DialogHeader>
-                                                    <MoneyInput name="donation" />
+                                                    <MoneyInput {...register("donation")}  />
                                                     <DialogFooter>
                                                         <DialogClose onClick={() => handleCloseDonation()} asChild>
                                                             <Button>Salvar</Button>

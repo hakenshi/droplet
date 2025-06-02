@@ -8,6 +8,7 @@ type Payload = {
   id?: string;
   user_id: number;
   content: string;
+  image?: object
   donation_goal?: number;
 };
 

@@ -8,7 +8,7 @@ type Payload = {
   id?: string;
   user_id: number;
   content: string;
-  image?: object
+  image?: File
   donation_goal?: number;
 };
 
@@ -342,7 +342,7 @@ export async function getFollowUsers(
 
     const { data } = await response.json();
     return data;
-  } catch (error) {
+  } catch (error: any) {
     const detailedMessage =
       error instanceof Error ? error.message : "Unknown error";
     console.error("Error in getFollowUsers:", detailedMessage);

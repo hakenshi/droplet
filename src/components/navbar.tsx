@@ -54,7 +54,7 @@ export default async function Navbar() {
 
                     <li>
                         <UserPostDialog user={user} >
-                            <button className='flex items-center gap-2 bg-transparent hover:bg-zinc-100/35 transition-colors px-4 py-2 rounded-full w-full'>
+                            <button  className='flex items-center gap-2 bg-transparent hover:bg-zinc-100/35 transition-colors px-4 py-2 rounded-full w-full'>
                                 <MessageCircleIcon />
                                 <span className='hidden lg:flex'>Postar</span>
                             </button>

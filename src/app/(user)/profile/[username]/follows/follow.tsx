@@ -6,7 +6,6 @@ import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import UnfollowButton from '@/components/buttons/unfollow-button'
-import { useReverb } from '@/lib/hooks/useReverb'
 
 interface FollowCardProps {
     followData: User

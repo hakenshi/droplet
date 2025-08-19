@@ -1,11 +1,11 @@
 interface Post {
-  id: int;
-  user_id: int;
+  id: number;
+  user_id: number;
   content: string;
   donation: {
-    goal: number;
+    goal: number | null;
     total_value: number;
   };
-  created_at: Date;
-  updated_at: Date;
+  created_at: string;
+  updated_at: string;
 }

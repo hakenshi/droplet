@@ -1,7 +1,9 @@
 interface Comment {
-    id: int,
-    user_id: int,
-    post_id: int,
-    parent_id: int,
-    content: string
+    id: number;
+    user_id: number;
+    post_id: number;
+    parent_id: number | null;
+    content: string;
+    created_at: string;
+    updated_at: string;
 }

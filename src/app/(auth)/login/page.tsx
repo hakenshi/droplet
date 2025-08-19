@@ -29,35 +29,36 @@ export default function Login() {
   })
 
   async function submit(formData: LoginFormdata) {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
+        next: {
+          tags: ['auth'],
+        },
+        headers: {
+          'Content-Type': 'application/json',
+          accept: 'application/json',
+        },
+        method: "POST",
+        body: JSON.stringify(formData)
+      });
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
-      next: {
-        tags: ['auth'],
-      },
-      headers: {
-        'Content-Type': 'application/json',
-        accept: 'application/json',
-      },
-      method: "POST",
-      body: JSON.stringify(formData)
+      const data: AuthResponse = await response.json();
+
+      if (!response.ok) {
+        return toast.error(data.message || 'Erro no login');
+      }
+
+      const { status } = await storeToken(data);
+
+      if (status !== 200) {
+        return toast.error("Falha ao armazenar token");
+      }
+
+      toast.success("Login realizado com sucesso!");
+      router.replace("/");
+    } catch (error) {
+      toast.error("Erro de conexão. Tente novamente.");
     }
-    )
-
-    const data: AuthResponse = await response.json()
-
-    if (!response.ok) {
-      return toast.error(data.message)
-    }
-
-
-    const { status } = await storeToken(data)
-
-    if (status !== 200) {
-      return toast.error("Token Storage was failed")
-    }
-
-    router.replace("/")
-
   }
 
 

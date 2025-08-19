@@ -5,15 +5,24 @@ import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogT
 import { Button, buttonVariants } from '../ui/button'
 import { DialogDescription, DialogTitle } from '@radix-ui/react-dialog'
 import { unfollowUser } from '@/app/(user)/profile/actions/actions'
+import { toast } from 'sonner'
 
 export default function UnfollowButton({ user }: { user: User }) {
 
     const [isOpen, setIsOpen] = useState(false)
+    const [loading, setLoading] = useState(false)
 
     const handleUnfollow = async () => {
-        console.log('Unfollowed user:', user.username)
-        await unfollowUser(user.username, user.id)
-        setIsOpen(false)
+        try {
+            setLoading(true)
+            await unfollowUser(user.username, user.id)
+            toast.success('Deixou de seguir com sucesso')
+            setIsOpen(false)
+        } catch (error) {
+            toast.error('Erro ao deixar de seguir')
+        } finally {
+            setLoading(false)
+        }
     }
 
     return (
@@ -29,8 +38,10 @@ export default function UnfollowButton({ user }: { user: User }) {
                     Tem certeza de que deixar de seguir <span className='text-lime-500'>@{user.username}</span>?
                 </DialogDescription>
                 <DialogFooter>
-                    <Button onClick={handleUnfollow} variant={'default'}>Confirmar</Button>
-                    <DialogClose className={buttonVariants({ variant: 'destructive' })}>
+                    <Button onClick={handleUnfollow} variant={'default'} disabled={loading}>
+                        {loading ? 'Processando...' : 'Confirmar'}
+                    </Button>
+                    <DialogClose className={buttonVariants({ variant: 'destructive' })} disabled={loading}>
                         Cancelar
                     </DialogClose>
                 </DialogFooter>

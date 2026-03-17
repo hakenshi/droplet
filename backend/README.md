@@ -1,122 +1,66 @@
-# 🌊 Droplet - Social Network with Donations
+<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-Uma rede social moderna com sistema de doações integrado, construída com Laravel e Next.js.
+<p align="center">
+<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+</p>
 
-## 📋 To-Do List
+## About Laravel
 
-### 🔴 **Crítico - Segurança**
-- [ ] **Corrigir vulnerabilidades XSS** em componentes React
-  - [ ] `user-edit-profile-dialog.tsx` - Sanitizar inputs do usuário
-  - [ ] `post-time.tsx` - Validar dados de timestamp
-- [ ] **Corrigir injeções SQL** nos Resources do Laravel
-  - [ ] `ReplyResource.php` - Usar parameter binding
-  - [ ] `CommentMinimalResource.php` - Sanitizar queries
-  - [ ] `PostMinimalResource.php` - Validar inputs
-  - [ ] `CommentResource.php` - Implementar prepared statements
-- [ ] **Remover credenciais hardcoded**
-  - [ ] `config/app.php` - Mover para variáveis de ambiente
-  - [ ] `database/seeders/DatabaseSeeder.php` - Usar Faker para dados de teste
-- [ ] **Implementar validação CSRF adequada**
-  - [ ] Configurar `same_site` cookies como `lax` ou `strict`
-- [ ] **Corrigir Log Injection**
-  - [ ] Sanitizar inputs antes de fazer log
+Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-### 🟠 **Alto - Performance & Estabilidade**
-- [ ] **Implementar paginação**
-  - [ ] `UserController::index()` - Substituir `User::all()` por `paginate()`
-  - [ ] Adicionar paginação em todos os endpoints de listagem
-- [ ] **Otimizar queries N+1**
-  - [ ] `FollowResource.php` - Usar `withCount()` para relacionamentos
-  - [ ] Implementar eager loading em todos os Resources
-- [ ] **Melhorar tratamento de erros**
-  - [ ] Adicionar try-catch em todas as operações async do frontend
-  - [ ] `PostController::update()` - Adicionar tratamento de exceções
-  - [ ] Implementar error boundaries no React
-- [ ] **Corrigir configurações faltantes**
-  - [ ] `config/logging.php` - Adicionar driver para canal emergency
-  - [ ] `config/queue.php` - Corrigir placeholder SQS
+- [Simple, fast routing engine](https://laravel.com/docs/routing).
+- [Powerful dependency injection container](https://laravel.com/docs/container).
+- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
+- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
+- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
+- [Robust background job processing](https://laravel.com/docs/queues).
+- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-### 🟡 **Médio - Qualidade do Código**
-- [ ] **Implementar controllers vazios**
-  - [ ] `PostDonationController` - Implementar métodos `index()` e `store()`
-  - [ ] `UserController::destroy()` - Implementar ou remover método
-- [ ] **Corrigir tipos TypeScript**
-  - [ ] ✅ ~~Substituir `int` por `number` em todos os tipos~~ (Concluído)
-  - [ ] ✅ ~~Alinhar tipos com respostas da API Laravel~~ (Concluído)
-- [ ] **Melhorar documentação**
-  - [ ] `TestNotification.php` - Adicionar docblock para `broadcastAs()`
-  - [ ] Documentar todas as APIs com Swagger/OpenAPI
-- [ ] **Refatorar código duplicado**
-  - [ ] `CommentMinimalResource.php` - Extrair verificação `method_exists`
-  - [ ] Padronizar estrutura de responses
+Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-### 🟢 **Baixo - Melhorias**
-- [ ] **Limpeza de código**
-  - [ ] Remover `console.log` de produção
-  - [ ] `user-cropper-modal.tsx` - Remover logs de debug
-  - [ ] `home/page.tsx` - Implementar logging adequado
-- [ ] **Melhorar UX**
-  - [ ] Adicionar estados de loading consistentes
-  - [ ] Implementar feedback visual para todas as ações
-  - [ ] `post.tsx` - Adicionar aria-label para acessibilidade
-- [ ] **Otimizações menores**
-  - [ ] `FormInput.tsx` - Remover type alias desnecessário
-  - [ ] Corrigir indentação em migrations
-  - [ ] Padronizar nomenclatura de propriedades
+## Learning Laravel
 
-### 🔧 **Funcionalidades & Arquitetura**
-- [ ] **Implementar testes**
-  - [ ] Testes unitários para services
-  - [ ] Testes de integração para APIs
-  - [ ] Testes E2E para fluxos principais
-- [ ] **Melhorar arquitetura**
-  - [ ] ✅ ~~Implementar princípios SOLID nas actions~~ (Concluído)
-  - [ ] Adicionar rate limiting nas APIs
-  - [ ] Implementar cache Redis
-- [ ] **Funcionalidades faltantes**
-  - [ ] Sistema de notificações real-time
-  - [ ] Upload de imagens otimizado
-  - [ ] Sistema de busca avançada
-  - [ ] Moderação de conteúdo
-- [ ] **DevOps & Deploy**
-  - [ ] Configurar CI/CD pipeline
-  - [ ] Docker para produção
-  - [ ] Monitoramento e logs
-  - [ ] Backup automatizado
+Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
 
-### 📱 **Mobile & Responsividade**
-- [ ] **Melhorar responsividade**
-  - [ ] Testar em diferentes dispositivos
-  - [ ] Otimizar componentes para mobile
-  - [ ] Implementar PWA features
+You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
 
-### 🔐 **Compliance & Privacidade**
-- [ ] **LGPD/GDPR**
-  - [ ] Política de privacidade
-  - [ ] Consentimento de cookies
-  - [ ] Direito ao esquecimento
-- [ ] **Auditoria de segurança**
-  - [ ] Penetration testing
-  - [ ] Análise de dependências
-  - [ ] Configuração de headers de segurança
+If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
 
-## 🚀 **Próximos Passos Prioritários**
+## Laravel Sponsors
 
-1. **Semana 1**: Corrigir vulnerabilidades de segurança críticas
-2. **Semana 2**: Implementar paginação e otimizar performance
-3. **Semana 3**: Melhorar tratamento de erros e UX
-4. **Semana 4**: Implementar testes e CI/CD
+We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
 
-## 📊 **Status do Projeto**
+### Premium Partners
 
-- ✅ **Arquitetura base**: Completa
-- ✅ **Funcionalidades core**: Implementadas
-- ⚠️ **Segurança**: Necessita correções críticas
-- ⚠️ **Performance**: Necessita otimizações
-- ❌ **Testes**: Não implementados
-- ❌ **Deploy**: Não configurado
+- **[Vehikl](https://vehikl.com/)**
+- **[Tighten Co.](https://tighten.co)**
+- **[WebReinvent](https://webreinvent.com/)**
+- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
+- **[64 Robots](https://64robots.com)**
+- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
+- **[Cyber-Duck](https://cyber-duck.co.uk)**
+- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
+- **[Jump24](https://jump24.co.uk)**
+- **[Redberry](https://redberry.international/laravel/)**
+- **[Active Logic](https://activelogic.com)**
+- **[byte5](https://byte5.de)**
+- **[OP.GG](https://op.gg)**
 
----
+## Contributing
 
-**Última atualização**: $(date)
-**Prioridade**: Focar primeiro nos itens marcados como 🔴 Crítico
+Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+
+## Code of Conduct
+
+In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+
+## Security Vulnerabilities
+
+If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+
+## License
+
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

@@ -32,7 +32,7 @@ class UserFactory extends Factory
             'cover_image' => null,
             'bio' => fake()->optional()->sentence(),
             'birth_date' => fake()->date(),
-            'private_profile' => fake()->boolean(15),
+            'private_profile' => false,
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),

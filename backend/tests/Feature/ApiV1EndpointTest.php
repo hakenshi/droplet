@@ -138,6 +138,71 @@ test('follow toggle respects private profile state', function (): void {
     expect($follow->accepted_at)->toBeNull();
 });
 
+test('private follow requests can be listed and accepted by target user', function (): void {
+    $targetUser = User::factory()->create([
+        'private_profile' => true,
+    ]);
+    $requester = User::factory()->create();
+
+    Sanctum::actingAs($requester, ['*']);
+    $this->postJson(API_V1_PREFIX."/users/{$targetUser->id}/follow")
+        ->assertCreated()
+        ->assertJsonPath('status', 'requested');
+
+    $follow = Follow::query()
+        ->where('follower_id', $requester->id)
+        ->where('following_id', $targetUser->id)
+        ->firstOrFail();
+
+    Sanctum::actingAs($targetUser, ['*']);
+
+    $pending = $this->getJson(API_V1_PREFIX.'/follow-requests');
+    $pending->assertOk();
+    $pending->assertJsonCount(1, 'data');
+    $pending->assertJsonPath('data.0.id', (string) $requester->id);
+
+    $accept = $this->postJson(API_V1_PREFIX."/follow-requests/{$follow->id}/accept");
+    $accept->assertOk();
+    $accept->assertJsonPath('status', 'following');
+
+    $follow->refresh();
+    expect($follow->accepted_at)->not->toBeNull();
+
+    Sanctum::actingAs($requester, ['*']);
+    $this->getJson(API_V1_PREFIX."/users/{$targetUser->id}")->assertOk();
+});
+
+test('private follow requests can be rejected only by target user', function (): void {
+    $targetUser = User::factory()->create([
+        'private_profile' => true,
+    ]);
+    $requester = User::factory()->create();
+    $intruder = User::factory()->create();
+
+    Sanctum::actingAs($requester, ['*']);
+    $this->postJson(API_V1_PREFIX."/users/{$targetUser->id}/follow")->assertCreated();
+
+    $follow = Follow::query()
+        ->where('follower_id', $requester->id)
+        ->where('following_id', $targetUser->id)
+        ->firstOrFail();
+
+    Sanctum::actingAs($intruder, ['*']);
+    $this->deleteJson(API_V1_PREFIX."/follow-requests/{$follow->id}")->assertForbidden();
+
+    Sanctum::actingAs($targetUser, ['*']);
+    $rejected = $this->deleteJson(API_V1_PREFIX."/follow-requests/{$follow->id}");
+    $rejected->assertOk();
+    $rejected->assertJsonPath('status', 'unfollowed');
+
+    $this->assertDatabaseMissing('follows', [
+        'id' => $follow->id,
+    ]);
+
+    Sanctum::actingAs($requester, ['*']);
+    $this->getJson(API_V1_PREFIX."/users/{$targetUser->id}")->assertForbidden();
+});
+
 test('guests cannot modify protected v1 endpoints', function (): void {
     $post = Post::query()->create([
         'user_id' => User::factory()->create()->id,
@@ -503,4 +568,90 @@ test('users can search users and posts', function (): void {
     $invalid = $this->getJson(API_V1_PREFIX.'/search/users');
     $invalid->assertUnprocessable();
     $invalid->assertJsonValidationErrors(['query']);
+});
+
+test('guests cannot access newly added v1 engagement and discovery endpoints', function (): void {
+    $owner = User::factory()->create();
+    $post = Post::factory()->for($owner)->create();
+    $comment = Comment::factory()->for($post)->for($owner)->create();
+
+    $this->postJson(API_V1_PREFIX."/posts/{$post->id}/likes")->assertUnauthorized();
+    $this->postJson(API_V1_PREFIX."/comments/{$comment->id}/likes")->assertUnauthorized();
+
+    $this->getJson(API_V1_PREFIX.'/search/users?query=test')->assertUnauthorized();
+    $this->getJson(API_V1_PREFIX.'/search/posts?query=test')->assertUnauthorized();
+
+    $this->getJson(API_V1_PREFIX."/users/{$owner->id}/posts")->assertUnauthorized();
+    $this->getJson(API_V1_PREFIX."/users/{$owner->id}/liked-posts")->assertUnauthorized();
+    $this->getJson(API_V1_PREFIX."/users/{$owner->id}/followers")->assertUnauthorized();
+    $this->getJson(API_V1_PREFIX."/users/{$owner->id}/following")->assertUnauthorized();
+});
+
+test('private profiles are hidden from unrelated users', function (): void {
+    $privateOwner = User::factory()->create([
+        'private_profile' => true,
+        'username' => 'private-owner',
+    ]);
+    $viewer = User::factory()->create();
+
+    $post = Post::factory()->for($privateOwner)->create([
+        'content' => 'private content marker',
+    ]);
+    $comment = Comment::factory()->for($post)->for($privateOwner)->create();
+
+    Sanctum::actingAs($viewer, ['*']);
+
+    $this->getJson(API_V1_PREFIX."/users/{$privateOwner->id}")->assertForbidden();
+    $this->getJson(API_V1_PREFIX."/users/{$privateOwner->id}/posts")->assertForbidden();
+    $this->getJson(API_V1_PREFIX."/users/{$privateOwner->id}/followers")->assertForbidden();
+    $this->getJson(API_V1_PREFIX."/users/{$privateOwner->id}/following")->assertForbidden();
+
+    $this->getJson(API_V1_PREFIX."/posts/{$post->id}")->assertForbidden();
+    $this->getJson(API_V1_PREFIX."/posts/{$post->id}/comments")->assertForbidden();
+    $this->postJson(API_V1_PREFIX."/posts/{$post->id}/comments", ['content' => 'Should fail'])->assertForbidden();
+
+    $this->postJson(API_V1_PREFIX."/posts/{$post->id}/likes")->assertForbidden();
+    $this->postJson(API_V1_PREFIX."/comments/{$comment->id}/likes")->assertForbidden();
+
+    $searchUsers = $this->getJson(API_V1_PREFIX.'/search/users?query=private-owner');
+    $searchUsers->assertOk();
+    $searchUsers->assertJsonCount(0, 'data');
+
+    $searchPosts = $this->getJson(API_V1_PREFIX.'/search/posts?query=private content marker');
+    $searchPosts->assertOk();
+    $searchPosts->assertJsonCount(0, 'data');
+
+    $posts = $this->getJson(API_V1_PREFIX.'/posts');
+    $posts->assertOk();
+    $posts->assertJsonMissing([
+        'id' => (string) $post->id,
+    ]);
+});
+
+test('accepted followers can access private profile content', function (): void {
+    $privateOwner = User::factory()->create([
+        'private_profile' => true,
+    ]);
+    $acceptedFollower = User::factory()->create();
+
+    Follow::factory()->create([
+        'follower_id' => $acceptedFollower->id,
+        'following_id' => $privateOwner->id,
+        'accepted_at' => now(),
+    ]);
+
+    $post = Post::factory()->for($privateOwner)->create();
+    $comment = Comment::factory()->for($post)->for($privateOwner)->create();
+
+    Sanctum::actingAs($acceptedFollower, ['*']);
+
+    $this->getJson(API_V1_PREFIX."/users/{$privateOwner->id}")->assertOk();
+    $this->getJson(API_V1_PREFIX."/users/{$privateOwner->id}/posts")->assertOk()->assertJsonCount(1, 'data');
+    $this->getJson(API_V1_PREFIX."/posts/{$post->id}")->assertOk();
+    $this->getJson(API_V1_PREFIX."/posts/{$post->id}/comments")->assertOk()->assertJsonCount(1, 'data');
+
+    $this->postJson(API_V1_PREFIX."/posts/{$post->id}/likes")->assertCreated();
+    $this->postJson(API_V1_PREFIX."/comments/{$comment->id}/likes")->assertCreated();
+
+    $this->getJson(API_V1_PREFIX.'/search/users?query='.$privateOwner->username)->assertOk()->assertJsonCount(1, 'data');
 });

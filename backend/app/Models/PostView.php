@@ -7,14 +7,14 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['comment_id', 'user_id'])]
-class CommentLike extends Model
+#[Fillable(['post_id', 'user_id', 'ip_address', 'user_agent'])]
+class PostView extends Model
 {
     use HasUlids;
 
-    public function comment(): BelongsTo
+    public function post(): BelongsTo
     {
-        return $this->belongsTo(Comment::class);
+        return $this->belongsTo(Post::class);
     }
 
     public function user(): BelongsTo

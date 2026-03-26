@@ -7,8 +7,16 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['user_id', 'post_id', 'amount', 'payment_status'])]
-class PostDonation extends Model
+#[Fillable([
+    'user_id',
+    'all',
+    'follows',
+    'likes',
+    'comments',
+    'mentions',
+    'donations',
+])]
+class NotificationPreference extends Model
 {
     use HasUlids;
 
@@ -17,15 +25,15 @@ class PostDonation extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function post(): BelongsTo
-    {
-        return $this->belongsTo(Post::class);
-    }
-
     protected function casts(): array
     {
         return [
-            'amount' => 'decimal:2',
+            'all' => 'boolean',
+            'follows' => 'boolean',
+            'likes' => 'boolean',
+            'comments' => 'boolean',
+            'mentions' => 'boolean',
+            'donations' => 'boolean',
         ];
     }
 }

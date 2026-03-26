@@ -2,46 +2,36 @@
 
 namespace App\Models;
 
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Http\Request;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 
+#[Fillable([
+    'username',
+    'name',
+    'surname',
+    'profile_image',
+    'cover_image',
+    'bio',
+    'birth_date',
+    'private_profile',
+    'email',
+    'email_verified_at',
+    'password',
+])]
+#[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasApiTokens;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'username',
-        'name',
-        'date_birth',
-        'profile_image',
-        'cover_image',
-        'bio',
-        'surname',
-        'email',
-        'password',
-    ];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    /** @use HasFactory<UserFactory> */
+    use HasApiTokens, HasFactory, HasUlids, Notifiable;
 
     /**
      * Get the attributes that should be cast.
@@ -51,6 +41,8 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            'birth_date' => 'date',
+            'private_profile' => 'boolean',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
@@ -60,39 +52,99 @@ class User extends Authenticatable
     {
         return $this->hasMany(Post::class);
     }
-    public function likedPosts(): BelongsToMany
+
+    public function comments(): HasMany
     {
-        return $this->belongsToMany(Post::class, 'post_likes')->withTimestamps();
+        return $this->hasMany(Comment::class);
     }
 
-    public function likedComments(): BelongsToMany
+    public function postLikes(): HasMany
     {
-        return $this->belongsToMany(Comment::class, 'comment_likes')->withTimestamps();
+        return $this->hasMany(PostLike::class);
     }
 
-    public function followers(): BelongsToMany
+    public function commentLikes(): HasMany
     {
-        return $this->belongsToMany(User::class, 'follows', 'following_id', 'follower_id');
+        return $this->hasMany(CommentLike::class);
     }
 
-    public function following(): BelongsToMany
+    public function donations(): HasMany
     {
-        return $this->belongsToMany(User::class, 'follows', 'follower_id', 'following_id');
+        return $this->hasMany(PostDonation::class);
     }
 
-
-    public static function updateProfileImage(Request $request, string $fileName, string $path)
+    public function followings(): HasMany
     {
+        return $this->hasMany(Follow::class, 'follower_id');
+    }
 
-        $user = $request->user();
+    public function followers(): HasMany
+    {
+        return $this->hasMany(Follow::class, 'following_id');
+    }
 
-        if ($request->hasFile($fileName)) {
-            $column = $fileName == "icon" ? "profile_image" : "cover_image";
-            if (!empty($user->$column)) {
-                Storage::disk('public')->delete($user->$column);
-            }
-            $imagePath = $request->file($fileName)->store($path, 'public');
-        }
-        return !empty($imagePath) ? $imagePath : null;
+    public function sentFollowRequests(): HasMany
+    {
+        return $this->hasMany(FollowRequest::class, 'requester_id');
+    }
+
+    public function receivedFollowRequests(): HasMany
+    {
+        return $this->hasMany(FollowRequest::class, 'recipient_id');
+    }
+
+    public function blockedUsers(): HasMany
+    {
+        return $this->hasMany(UserBlock::class, 'blocker_id');
+    }
+
+    public function blockedByUsers(): HasMany
+    {
+        return $this->hasMany(UserBlock::class, 'blocked_id');
+    }
+
+    public function mutedUsers(): HasMany
+    {
+        return $this->hasMany(UserMute::class, 'muter_id');
+    }
+
+    public function mutedByUsers(): HasMany
+    {
+        return $this->hasMany(UserMute::class, 'muted_user_id');
+    }
+
+    public function postSaves(): HasMany
+    {
+        return $this->hasMany(PostSave::class);
+    }
+
+    public function postShares(): HasMany
+    {
+        return $this->hasMany(PostShare::class);
+    }
+
+    public function postViews(): HasMany
+    {
+        return $this->hasMany(PostView::class);
+    }
+
+    public function mentionsSent(): HasMany
+    {
+        return $this->hasMany(Mention::class, 'mentioned_by_user_id');
+    }
+
+    public function mentionsReceived(): HasMany
+    {
+        return $this->hasMany(Mention::class, 'mentioned_user_id');
+    }
+
+    public function reports(): HasMany
+    {
+        return $this->hasMany(Report::class, 'reporter_id');
+    }
+
+    public function notificationPreference(): HasOne
+    {
+        return $this->hasOne(NotificationPreference::class);
     }
 }

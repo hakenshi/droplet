@@ -7,18 +7,18 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['comment_id', 'user_id'])]
-class CommentLike extends Model
+#[Fillable(['muter_id', 'muted_user_id'])]
+class UserMute extends Model
 {
     use HasUlids;
 
-    public function comment(): BelongsTo
+    public function muter(): BelongsTo
     {
-        return $this->belongsTo(Comment::class);
+        return $this->belongsTo(User::class, 'muter_id');
     }
 
-    public function user(): BelongsTo
+    public function mutedUser(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'muted_user_id');
     }
 }

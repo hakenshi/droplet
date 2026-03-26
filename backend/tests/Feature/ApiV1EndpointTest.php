@@ -172,6 +172,47 @@ test('private follow requests can be listed and accepted by target user', functi
     $this->getJson(API_V1_PREFIX."/users/{$targetUser->id}")->assertOk();
 });
 
+test('pending follow requests endpoint only returns current user pending requests', function (): void {
+    $targetUser = User::factory()->create([
+        'private_profile' => true,
+    ]);
+    $anotherTarget = User::factory()->create([
+        'private_profile' => true,
+    ]);
+    $pendingRequester = User::factory()->create();
+    $acceptedRequester = User::factory()->create();
+    $otherPendingRequester = User::factory()->create();
+
+    Follow::factory()->pending()->create([
+        'follower_id' => $pendingRequester->id,
+        'following_id' => $targetUser->id,
+    ]);
+
+    Follow::factory()->create([
+        'follower_id' => $acceptedRequester->id,
+        'following_id' => $targetUser->id,
+        'accepted_at' => now(),
+    ]);
+
+    Follow::factory()->pending()->create([
+        'follower_id' => $otherPendingRequester->id,
+        'following_id' => $anotherTarget->id,
+    ]);
+
+    Sanctum::actingAs($targetUser, ['*']);
+
+    $pending = $this->getJson(API_V1_PREFIX.'/follow-requests');
+    $pending->assertOk();
+    $pending->assertJsonCount(1, 'data');
+    $pending->assertJsonPath('data.0.id', (string) $pendingRequester->id);
+    $pending->assertJsonMissing([
+        'id' => (string) $acceptedRequester->id,
+    ]);
+    $pending->assertJsonMissing([
+        'id' => (string) $otherPendingRequester->id,
+    ]);
+});
+
 test('private follow requests can be rejected only by target user', function (): void {
     $targetUser = User::factory()->create([
         'private_profile' => true,

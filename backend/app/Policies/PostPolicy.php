@@ -20,7 +20,9 @@ class PostPolicy
      */
     public function view(User $user, Post $post): bool
     {
-        return true;
+        $post->loadMissing('user');
+
+        return $post->user !== null && $post->user->isVisibleTo($user);
     }
 
     /**

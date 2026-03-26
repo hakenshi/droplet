@@ -21,8 +21,12 @@ class SearchController extends Controller
         $query = $request->string('query')->trim()->toString();
 
         $users = User::query()
-            ->where('username', 'like', "%{$query}%")
-            ->orWhere('name', 'like', "%{$query}%")
+            ->visibleTo($request->user())
+            ->where(function (Builder $builder) use ($query): void {
+                $builder
+                    ->where('username', 'like', "%{$query}%")
+                    ->orWhere('name', 'like', "%{$query}%");
+            })
             ->withCount(['followers', 'followings', 'posts'])
             ->orderByDesc('created_at')
             ->paginate($this->resolvePerPage($request));
@@ -35,6 +39,7 @@ class SearchController extends Controller
         $query = $request->string('query')->trim()->toString();
 
         $posts = Post::query()
+            ->visibleTo($request->user())
             ->where(function (Builder $builder) use ($query): void {
                 $builder
                     ->where('content', 'like', "%{$query}%")

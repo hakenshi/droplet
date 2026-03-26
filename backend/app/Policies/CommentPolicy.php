@@ -20,7 +20,9 @@ class CommentPolicy
      */
     public function view(User $user, Comment $comment): bool
     {
-        return true;
+        $comment->loadMissing('post.user');
+
+        return $comment->post?->user !== null && $comment->post->user->isVisibleTo($user);
     }
 
     /**

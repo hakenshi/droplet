@@ -28,6 +28,7 @@ class PostController extends Controller
         $this->authorize('viewAny', Post::class);
 
         $posts = Post::query()
+            ->visibleTo($request->user())
             ->with(['images', 'user'])
             ->withCount('comments')
             ->orderByDesc('created_at')

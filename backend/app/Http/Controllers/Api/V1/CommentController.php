@@ -23,10 +23,12 @@ class CommentController extends Controller
      */
     public function index(Request $request, Post $post): AnonymousResourceCollection
     {
+        $this->authorize('view', $post);
         $this->authorize('viewAny', Comment::class);
 
         $comments = $post
             ->comments()
+            ->visibleTo($request->user())
             ->with('user')
             ->latest('created_at')
             ->paginate($this->resolvePerPage($request));

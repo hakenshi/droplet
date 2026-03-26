@@ -6,6 +6,7 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -146,5 +147,31 @@ class User extends Authenticatable
     public function notificationPreference(): HasOne
     {
         return $this->hasOne(NotificationPreference::class);
+    }
+
+    public function isVisibleTo(self $viewer): bool
+    {
+        if ($this->is($viewer) || ! $this->private_profile) {
+            return true;
+        }
+
+        return Follow::query()
+            ->where('follower_id', $viewer->id)
+            ->where('following_id', $this->id)
+            ->whereNotNull('accepted_at')
+            ->exists();
+    }
+
+    public function scopeVisibleTo(Builder $query, self $viewer): Builder
+    {
+        return $query->where(function (Builder $builder) use ($viewer): void {
+            $builder
+                ->where('private_profile', false)
+                ->orWhere('id', $viewer->id)
+                ->orWhereIn('id', Follow::query()
+                    ->select('following_id')
+                    ->where('follower_id', $viewer->id)
+                    ->whereNotNull('accepted_at'));
+        });
     }
 }

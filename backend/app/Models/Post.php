@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -85,5 +86,10 @@ class Post extends Model
     protected function casts(): array
     {
         return ['donation_goal' => 'decimal:2'];
+    }
+
+    public function scopeVisibleTo(Builder $query, User $viewer): Builder
+    {
+        return $query->whereHas('user', fn (Builder $builder) => $builder->visibleTo($viewer));
     }
 }

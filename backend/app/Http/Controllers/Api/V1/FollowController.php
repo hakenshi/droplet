@@ -90,4 +90,53 @@ class FollowController extends Controller
 
         return UserResource::collection($following);
     }
+
+    public function pending(Request $request): AnonymousResourceCollection
+    {
+        $currentUser = $request->user();
+
+        $pendingFollowers = User::query()
+            ->whereIn('id', Follow::query()
+                ->select('follower_id')
+                ->where('following_id', $currentUser->id)
+                ->whereNull('accepted_at'))
+            ->withCount(['followers', 'followings', 'posts'])
+            ->orderByDesc('created_at')
+            ->paginate($this->resolvePerPage($request));
+
+        return UserResource::collection($pendingFollowers);
+    }
+
+    public function accept(Request $request, Follow $follow): JsonResponse
+    {
+        $this->authorize('update', $follow);
+
+        if ($follow->accepted_at !== null) {
+            return response()->json([
+                'message' => 'Follow request already accepted.',
+                'status' => self::STATUS_FOLLOWING,
+            ]);
+        }
+
+        $follow->update([
+            'accepted_at' => now(),
+        ]);
+
+        return response()->json([
+            'message' => 'Follow request accepted.',
+            'status' => self::STATUS_FOLLOWING,
+        ]);
+    }
+
+    public function reject(Request $request, Follow $follow): JsonResponse
+    {
+        $this->authorize('update', $follow);
+
+        $follow->delete();
+
+        return response()->json([
+            'message' => 'Follow request rejected.',
+            'status' => self::STATUS_UNFOLLOWED,
+        ]);
+    }
 }

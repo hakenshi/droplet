@@ -28,6 +28,9 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
         Route::get('/users/{user}/liked-posts', [UserPostController::class, 'liked'])->name('users.posts.liked');
         Route::get('/users/{user}/followers', [FollowController::class, 'followers'])->name('users.followers');
         Route::get('/users/{user}/following', [FollowController::class, 'following'])->name('users.following');
+        Route::get('/follow-requests', [FollowController::class, 'pending'])->name('follow-requests.pending');
+        Route::post('/follow-requests/{follow}/accept', [FollowController::class, 'accept'])->name('follow-requests.accept');
+        Route::delete('/follow-requests/{follow}', [FollowController::class, 'reject'])->name('follow-requests.reject');
 
         Route::post('/posts/{post}/likes', [PostLikeController::class, 'toggle'])->name('posts.likes.toggle');
         Route::post('/comments/{comment}/likes', [CommentLikeController::class, 'toggle'])->name('comments.likes.toggle');

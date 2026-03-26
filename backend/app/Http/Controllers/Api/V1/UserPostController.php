@@ -34,6 +34,7 @@ class UserPostController extends Controller
         $this->authorize('view', $user);
 
         $posts = Post::query()
+            ->visibleTo($request->user())
             ->whereHas('likes', fn (Builder $builder) => $builder->whereBelongsTo($user))
             ->with(['user', 'images'])
             ->withCount('comments')

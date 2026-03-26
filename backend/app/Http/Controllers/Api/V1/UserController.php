@@ -26,6 +26,7 @@ class UserController extends Controller
         $this->authorize('viewAny', User::class);
 
         $users = User::query()
+            ->visibleTo($request->user())
             ->withCount(['followers', 'followings', 'posts'])
             ->orderByDesc('created_at')
             ->paginate($this->resolvePerPage($request));

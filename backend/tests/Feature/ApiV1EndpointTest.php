@@ -359,3 +359,148 @@ test('users can replace profile and cover media on s3 disk', function (): void {
     Storage::disk('s3')->assertExists($user->profile_image);
     Storage::disk('s3')->assertExists($user->cover_image);
 });
+
+test('users can toggle post likes', function (): void {
+    $author = User::factory()->create();
+    $post = Post::factory()->for($author)->create();
+    $liker = User::factory()->create();
+
+    Sanctum::actingAs($liker, ['*']);
+
+    $liked = $this->postJson(API_V1_PREFIX."/posts/{$post->id}/likes");
+    $liked->assertCreated();
+    $liked->assertJsonPath('status', 'liked');
+    $liked->assertJsonPath('has_liked', true);
+    $this->assertDatabaseHas('post_likes', [
+        'post_id' => $post->id,
+        'user_id' => $liker->id,
+    ]);
+
+    $unliked = $this->postJson(API_V1_PREFIX."/posts/{$post->id}/likes");
+    $unliked->assertOk();
+    $unliked->assertJsonPath('status', 'unliked');
+    $unliked->assertJsonPath('has_liked', false);
+    $this->assertDatabaseMissing('post_likes', [
+        'post_id' => $post->id,
+        'user_id' => $liker->id,
+    ]);
+});
+
+test('users can toggle comment likes', function (): void {
+    $author = User::factory()->create();
+    $post = Post::factory()->for($author)->create();
+    $comment = Comment::factory()->for($post)->for($author)->create();
+    $liker = User::factory()->create();
+
+    Sanctum::actingAs($liker, ['*']);
+
+    $liked = $this->postJson(API_V1_PREFIX."/comments/{$comment->id}/likes");
+    $liked->assertCreated();
+    $liked->assertJsonPath('status', 'liked');
+    $liked->assertJsonPath('has_liked', true);
+    $this->assertDatabaseHas('comment_likes', [
+        'comment_id' => $comment->id,
+        'user_id' => $liker->id,
+    ]);
+
+    $unliked = $this->postJson(API_V1_PREFIX."/comments/{$comment->id}/likes");
+    $unliked->assertOk();
+    $unliked->assertJsonPath('status', 'unliked');
+    $unliked->assertJsonPath('has_liked', false);
+    $this->assertDatabaseMissing('comment_likes', [
+        'comment_id' => $comment->id,
+        'user_id' => $liker->id,
+    ]);
+});
+
+test('users can list profile posts and liked posts', function (): void {
+    $profileOwner = User::factory()->create();
+    $viewer = User::factory()->create();
+
+    $profilePost = Post::factory()->for($profileOwner)->create();
+    Post::factory()->for($profileOwner)->count(2)->create();
+
+    $likedPost = Post::factory()->create();
+    $likedPost->likes()->create([
+        'user_id' => $profileOwner->id,
+    ]);
+
+    Sanctum::actingAs($viewer, ['*']);
+
+    $posts = $this->getJson(API_V1_PREFIX."/users/{$profileOwner->id}/posts");
+    $posts->assertOk();
+    $posts->assertJsonCount(3, 'data');
+
+    $likedPosts = $this->getJson(API_V1_PREFIX."/users/{$profileOwner->id}/liked-posts");
+    $likedPosts->assertOk();
+    $likedPosts->assertJsonCount(1, 'data');
+    $likedPosts->assertJsonPath('data.0.id', (string) $likedPost->id);
+    $likedPosts->assertJsonMissingPath('data.1.id');
+
+    $posts->assertJsonFragment([
+        'id' => (string) $profilePost->id,
+    ]);
+});
+
+test('users can list accepted followers and following connections', function (): void {
+    $profileOwner = User::factory()->create();
+    $viewer = User::factory()->create();
+
+    $followerAccepted = User::factory()->create();
+    $followerPending = User::factory()->create();
+    $followingAccepted = User::factory()->create();
+
+    Follow::factory()->create([
+        'follower_id' => $followerAccepted->id,
+        'following_id' => $profileOwner->id,
+        'accepted_at' => now(),
+    ]);
+
+    Follow::factory()->pending()->create([
+        'follower_id' => $followerPending->id,
+        'following_id' => $profileOwner->id,
+    ]);
+
+    Follow::factory()->create([
+        'follower_id' => $profileOwner->id,
+        'following_id' => $followingAccepted->id,
+        'accepted_at' => now(),
+    ]);
+
+    Sanctum::actingAs($viewer, ['*']);
+
+    $followers = $this->getJson(API_V1_PREFIX."/users/{$profileOwner->id}/followers");
+    $followers->assertOk();
+    $followers->assertJsonCount(1, 'data');
+    $followers->assertJsonPath('data.0.id', (string) $followerAccepted->id);
+
+    $following = $this->getJson(API_V1_PREFIX."/users/{$profileOwner->id}/following");
+    $following->assertOk();
+    $following->assertJsonCount(1, 'data');
+    $following->assertJsonPath('data.0.id', (string) $followingAccepted->id);
+});
+
+test('users can search users and posts', function (): void {
+    $viewer = User::factory()->create();
+    $matchedUser = User::factory()->create([
+        'username' => 'searchable_username',
+    ]);
+
+    Post::factory()->for($matchedUser)->create([
+        'content' => 'rainwater collection tips',
+    ]);
+
+    Sanctum::actingAs($viewer, ['*']);
+
+    $users = $this->getJson(API_V1_PREFIX.'/search/users?query=searchable');
+    $users->assertOk();
+    $users->assertJsonPath('data.0.id', (string) $matchedUser->id);
+
+    $posts = $this->getJson(API_V1_PREFIX.'/search/posts?query=rainwater');
+    $posts->assertOk();
+    $posts->assertJsonPath('data.0.author.id', (string) $matchedUser->id);
+
+    $invalid = $this->getJson(API_V1_PREFIX.'/search/users');
+    $invalid->assertUnprocessable();
+    $invalid->assertJsonValidationErrors(['query']);
+});

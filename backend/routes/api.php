@@ -2,9 +2,13 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CommentController;
+use App\Http\Controllers\Api\V1\CommentLikeController;
 use App\Http\Controllers\Api\V1\FollowController;
 use App\Http\Controllers\Api\V1\PostController;
+use App\Http\Controllers\Api\V1\PostLikeController;
+use App\Http\Controllers\Api\V1\SearchController;
 use App\Http\Controllers\Api\V1\UserController;
+use App\Http\Controllers\Api\V1\UserPostController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->name('api.v1.')->group(function (): void {
@@ -20,6 +24,19 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
     });
 
     Route::middleware('auth:sanctum')->group(function (): void {
+        Route::get('/users/{user}/posts', [UserPostController::class, 'index'])->name('users.posts.index');
+        Route::get('/users/{user}/liked-posts', [UserPostController::class, 'liked'])->name('users.posts.liked');
+        Route::get('/users/{user}/followers', [FollowController::class, 'followers'])->name('users.followers');
+        Route::get('/users/{user}/following', [FollowController::class, 'following'])->name('users.following');
+
+        Route::post('/posts/{post}/likes', [PostLikeController::class, 'toggle'])->name('posts.likes.toggle');
+        Route::post('/comments/{comment}/likes', [CommentLikeController::class, 'toggle'])->name('comments.likes.toggle');
+
+        Route::prefix('search')->name('search.')->group(function (): void {
+            Route::get('/users', [SearchController::class, 'users'])->name('users');
+            Route::get('/posts', [SearchController::class, 'posts'])->name('posts');
+        });
+
         Route::apiResource('posts', PostController::class);
 
         Route::get('/posts/{post}/comments', [CommentController::class, 'index'])->name('posts.comments.index');

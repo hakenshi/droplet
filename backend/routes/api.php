@@ -1,64 +1,32 @@
 <?php
 
-use App\Events\TestNotification;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\CommentController;
-use App\Http\Controllers\FollowController;
-use App\Http\Controllers\PostController;
-use App\Http\Controllers\SearchController;
-use App\Http\Controllers\UserController;
-use App\Http\Resources\UserResource;
+use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\CommentController;
+use App\Http\Controllers\Api\V1\FollowController;
+use App\Http\Controllers\Api\V1\PostController;
+use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('login', [AuthController::class, 'login']);
-Route::post('register', [AuthController::class, 'register']);
+Route::prefix('v1')->name('api.v1.')->group(function (): void {
+    Route::prefix('auth')->name('auth.')->group(function (): void {
+        Route::post('/register', [AuthController::class, 'register'])->name('register');
+        Route::post('/login', [AuthController::class, 'login'])->name('login');
 
-Route::get('send-notification', function (){
-    event(new TestNotification("Hello World"));
-    return response()->json(['message' => 'Notification sent']);
-});
-
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('logout', [AuthController::class, 'logout']);
-    Route::get('users', [UserController::class, 'index']);
-
-    Route::prefix('user')->group(function () {
-        Route::get('{user}', [UserController::class, 'show']);
-        Route::patch('{user}', [UserController::class, 'update']);
-        Route::prefix('follow')->group(function () {
-            Route::get('{username}', [FollowController::class, 'show']);
-            Route::post('{username}', [FollowController::class, 'followUser']);
-            Route::get('followers', [FollowController::class, 'followers']);
-            Route::get('following', [FollowController::class, 'following']);
+        Route::middleware('auth:sanctum')->group(function (): void {
+            Route::get('/me', [AuthController::class, 'me'])->name('me');
+            Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+            Route::post('/logout-all', [AuthController::class, 'logoutAll'])->name('logout-all');
         });
-        Route::delete('unfollow/{username}', [FollowController::class, 'unfollowUser']);
-
     });
 
-    Route::prefix('posts')->group(function () {
-        Route::get('index', [PostController::class, 'index']);
-        Route::get('{username}', [PostController::class, 'showUserPosts']);
-        Route::get('liked/{username}', [PostController::class, 'showUserLikedPosts']);
-        Route::post('store', [PostController::class, 'store']);
-        Route::post('like', [PostController::class, 'storeLike']);
-        Route::prefix('comment')->group(function () {
-            Route::get('show/{comment}', [CommentController::class, 'show']);
-            Route::post('/', [CommentController::class, 'store']);
-            Route::post('reply/{comment}', [CommentController::class, 'storeReply']);
-            Route::post('like/{comment}', [CommentController::class, 'storeLike']);
-            Route::patch('{comment}', [CommentController::class, 'update']);
-            Route::delete('{comment}', [CommentController::class, 'destroy']);
-        });
-        Route::get('{post}/comment', [CommentController::class, 'index']);
-        Route::get('show/{post}', [PostController::class, 'show']);
-        Route::patch('{post}', [PostController::class, 'update']);
-        Route::delete('{post}', [PostController::class, 'destroy']);
-    });
+    Route::middleware('auth:sanctum')->group(function (): void {
+        Route::apiResource('posts', PostController::class);
 
+        Route::get('/posts/{post}/comments', [CommentController::class, 'index'])->name('posts.comments.index');
+        Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('posts.comments.store');
+        Route::apiResource('comments', CommentController::class)->except(['index', 'store']);
 
-    Route::prefix('search')->group(function() {
-        Route::get("users", [SearchController::class, 'findUserByUsername']);
-        Route::get("posts", [SearchController::class, 'findPostsByUsername']);
-        
+        Route::apiResource('users', UserController::class)->only(['index', 'show', 'update', 'destroy']);
+        Route::post('/users/{user}/follow', [FollowController::class, 'toggle'])->name('users.follow');
     });
 });

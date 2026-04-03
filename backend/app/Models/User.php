@@ -151,7 +151,15 @@ class User extends Authenticatable
 
     public function isVisibleTo(self $viewer): bool
     {
-        if ($this->is($viewer) || ! $this->private_profile) {
+        if ($this->is($viewer)) {
+            return true;
+        }
+
+        if ($this->isBlockedWith($viewer)) {
+            return false;
+        }
+
+        if (! $this->private_profile) {
             return true;
         }
 
@@ -164,14 +172,52 @@ class User extends Authenticatable
 
     public function scopeVisibleTo(Builder $query, self $viewer): Builder
     {
-        return $query->where(function (Builder $builder) use ($viewer): void {
-            $builder
-                ->where('private_profile', false)
-                ->orWhere('id', $viewer->id)
-                ->orWhereIn('id', Follow::query()
-                    ->select('following_id')
-                    ->where('follower_id', $viewer->id)
-                    ->whereNotNull('accepted_at'));
-        });
+        return $query
+            ->whereNotIn('id', self::blockedByViewerIdsQuery($viewer))
+            ->whereNotIn('id', self::blockingViewerIdsQuery($viewer))
+            ->where(function (Builder $builder) use ($viewer): void {
+                $builder
+                    ->where('private_profile', false)
+                    ->orWhere('id', $viewer->id)
+                    ->orWhereIn('id', self::acceptedFollowingIdsQuery($viewer));
+            });
+    }
+
+    private static function acceptedFollowingIdsQuery(self $viewer): Builder
+    {
+        return Follow::query()
+            ->select('following_id')
+            ->where('follower_id', $viewer->id)
+            ->whereNotNull('accepted_at');
+    }
+
+    public function isBlockedWith(self $viewer): bool
+    {
+        return UserBlock::query()
+            ->where(function (Builder $builder) use ($viewer): void {
+                $builder
+                    ->where('blocker_id', $viewer->id)
+                    ->where('blocked_id', $this->id);
+            })
+            ->orWhere(function (Builder $builder) use ($viewer): void {
+                $builder
+                    ->where('blocker_id', $this->id)
+                    ->where('blocked_id', $viewer->id);
+            })
+            ->exists();
+    }
+
+    private static function blockedByViewerIdsQuery(self $viewer): Builder
+    {
+        return UserBlock::query()
+            ->select('blocked_id')
+            ->where('blocker_id', $viewer->id);
+    }
+
+    private static function blockingViewerIdsQuery(self $viewer): Builder
+    {
+        return UserBlock::query()
+            ->select('blocker_id')
+            ->where('blocked_id', $viewer->id);
     }
 }

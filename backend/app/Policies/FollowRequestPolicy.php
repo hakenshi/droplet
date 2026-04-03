@@ -44,7 +44,7 @@ class FollowRequestPolicy
      */
     public function delete(User $user, FollowRequest $followRequest): bool
     {
-        return $user->id === $followRequest->requester_id || $user->id === $followRequest->recipient_id;
+        return $user->id === $followRequest->requester_id;
     }
 
     /**
@@ -52,7 +52,7 @@ class FollowRequestPolicy
      */
     public function restore(User $user, FollowRequest $followRequest): bool
     {
-        return $user->id === $followRequest->requester_id || $user->id === $followRequest->recipient_id;
+        return $user->id === $followRequest->requester_id;
     }
 
     /**
@@ -60,6 +60,6 @@ class FollowRequestPolicy
      */
     public function forceDelete(User $user, FollowRequest $followRequest): bool
     {
-        return $user->id === $followRequest->requester_id || $user->id === $followRequest->recipient_id;
+        return $user->id === $followRequest->requester_id;
     }
 }

@@ -65,14 +65,12 @@ class UserController extends Controller
 
         $data = $request->validated();
 
-        $profileImage = $this->storeAndReplaceImage($request->file('profile_image'), $user->profile_image);
-        if ($profileImage !== null) {
-            $data['profile_image'] = $profileImage;
-        }
+        foreach (['profile_image', 'cover_image'] as $attribute) {
+            $storedImagePath = $this->storeAndReplaceImage($request->file($attribute), $user->{$attribute});
 
-        $coverImage = $this->storeAndReplaceImage($request->file('cover_image'), $user->cover_image);
-        if ($coverImage !== null) {
-            $data['cover_image'] = $coverImage;
+            if ($storedImagePath !== null) {
+                $data[$attribute] = $storedImagePath;
+            }
         }
 
         $user->update($data);
@@ -104,10 +102,12 @@ class UserController extends Controller
             return null;
         }
 
+        $disk = Storage::disk(config('filesystems.media_disk', 's3'));
+
         if ($existingPath !== null) {
-            Storage::disk(config('filesystems.media_disk', 's3'))->delete($existingPath);
+            $disk->delete($existingPath);
         }
 
-        return Storage::disk(config('filesystems.media_disk', 's3'))->putFile('users', $incomingFile, 'public');
+        return $disk->putFile('users', $incomingFile, 'public');
     }
 }

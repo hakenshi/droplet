@@ -2,18 +2,18 @@
 
 namespace App\Http\Requests\Api;
 
-use App\Models\FollowRequest;
+use App\Models\UserMute;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class ToggleFollowRequest extends FormRequest
+class ToggleUserMuteRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return (bool) $this->user()?->can('create', FollowRequest::class);
+        return (bool) $this->user()?->can('create', UserMute::class);
     }
 
     /**

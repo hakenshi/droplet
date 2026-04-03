@@ -2,8 +2,10 @@
 
 use App\Models\Comment;
 use App\Models\Follow;
+use App\Models\FollowRequest;
 use App\Models\Post;
 use App\Models\User;
+use App\Models\UserMute;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -134,8 +136,19 @@ test('follow toggle respects private profile state', function (): void {
     $followPrivate->assertCreated();
     $followPrivate->assertJsonPath('status', 'requested');
 
-    $follow = Follow::query()->where('follower_id', $viewer->id)->where('following_id', $privateUser->id)->firstOrFail();
-    expect($follow->accepted_at)->toBeNull();
+    $followRequest = FollowRequest::query()
+        ->where('requester_id', $viewer->id)
+        ->where('recipient_id', $privateUser->id)
+        ->firstOrFail();
+    expect($followRequest->id)->not->toBeNull();
+
+    $cancelPrivate = $this->postJson(API_V1_PREFIX."/users/{$privateUser->id}/follow");
+    $cancelPrivate->assertOk();
+    $cancelPrivate->assertJsonPath('status', 'unfollowed');
+
+    $this->assertDatabaseMissing('follow_requests', [
+        'id' => $followRequest->id,
+    ]);
 });
 
 test('private follow requests can be listed and accepted by target user', function (): void {
@@ -149,9 +162,9 @@ test('private follow requests can be listed and accepted by target user', functi
         ->assertCreated()
         ->assertJsonPath('status', 'requested');
 
-    $follow = Follow::query()
-        ->where('follower_id', $requester->id)
-        ->where('following_id', $targetUser->id)
+    $followRequest = FollowRequest::query()
+        ->where('requester_id', $requester->id)
+        ->where('recipient_id', $targetUser->id)
         ->firstOrFail();
 
     Sanctum::actingAs($targetUser, ['*']);
@@ -161,11 +174,18 @@ test('private follow requests can be listed and accepted by target user', functi
     $pending->assertJsonCount(1, 'data');
     $pending->assertJsonPath('data.0.id', (string) $requester->id);
 
-    $accept = $this->postJson(API_V1_PREFIX."/follow-requests/{$follow->id}/accept");
+    $accept = $this->postJson(API_V1_PREFIX."/follow-requests/{$followRequest->id}/accept");
     $accept->assertOk();
     $accept->assertJsonPath('status', 'following');
 
-    $follow->refresh();
+    $this->assertDatabaseMissing('follow_requests', [
+        'id' => $followRequest->id,
+    ]);
+
+    $follow = Follow::query()
+        ->where('follower_id', $requester->id)
+        ->where('following_id', $targetUser->id)
+        ->firstOrFail();
     expect($follow->accepted_at)->not->toBeNull();
 
     Sanctum::actingAs($requester, ['*']);
@@ -183,9 +203,9 @@ test('pending follow requests endpoint only returns current user pending request
     $acceptedRequester = User::factory()->create();
     $otherPendingRequester = User::factory()->create();
 
-    Follow::factory()->pending()->create([
-        'follower_id' => $pendingRequester->id,
-        'following_id' => $targetUser->id,
+    FollowRequest::factory()->create([
+        'requester_id' => $pendingRequester->id,
+        'recipient_id' => $targetUser->id,
     ]);
 
     Follow::factory()->create([
@@ -194,9 +214,9 @@ test('pending follow requests endpoint only returns current user pending request
         'accepted_at' => now(),
     ]);
 
-    Follow::factory()->pending()->create([
-        'follower_id' => $otherPendingRequester->id,
-        'following_id' => $anotherTarget->id,
+    FollowRequest::factory()->create([
+        'requester_id' => $otherPendingRequester->id,
+        'recipient_id' => $anotherTarget->id,
     ]);
 
     Sanctum::actingAs($targetUser, ['*']);
@@ -223,21 +243,21 @@ test('private follow requests can be rejected only by target user', function ():
     Sanctum::actingAs($requester, ['*']);
     $this->postJson(API_V1_PREFIX."/users/{$targetUser->id}/follow")->assertCreated();
 
-    $follow = Follow::query()
-        ->where('follower_id', $requester->id)
-        ->where('following_id', $targetUser->id)
+    $followRequest = FollowRequest::query()
+        ->where('requester_id', $requester->id)
+        ->where('recipient_id', $targetUser->id)
         ->firstOrFail();
 
     Sanctum::actingAs($intruder, ['*']);
-    $this->deleteJson(API_V1_PREFIX."/follow-requests/{$follow->id}")->assertForbidden();
+    $this->deleteJson(API_V1_PREFIX."/follow-requests/{$followRequest->id}")->assertForbidden();
 
     Sanctum::actingAs($targetUser, ['*']);
-    $rejected = $this->deleteJson(API_V1_PREFIX."/follow-requests/{$follow->id}");
+    $rejected = $this->deleteJson(API_V1_PREFIX."/follow-requests/{$followRequest->id}");
     $rejected->assertOk();
     $rejected->assertJsonPath('status', 'unfollowed');
 
-    $this->assertDatabaseMissing('follows', [
-        'id' => $follow->id,
+    $this->assertDatabaseMissing('follow_requests', [
+        'id' => $followRequest->id,
     ]);
 
     Sanctum::actingAs($requester, ['*']);
@@ -289,6 +309,139 @@ test('users cannot modify comments they do not own', function (): void {
 
     $this->putJson(API_V1_PREFIX."/comments/{$comment->id}", ['content' => 'Hacked'])->assertForbidden();
     $this->deleteJson(API_V1_PREFIX."/comments/{$comment->id}")->assertForbidden();
+});
+
+test('users can toggle block and it clears social relationships', function (): void {
+    $actor = User::factory()->create();
+    $target = User::factory()->create();
+
+    Follow::factory()->create([
+        'follower_id' => $actor->id,
+        'following_id' => $target->id,
+        'accepted_at' => now(),
+    ]);
+    FollowRequest::factory()->create([
+        'requester_id' => $target->id,
+        'recipient_id' => $actor->id,
+    ]);
+    UserMute::factory()->create([
+        'muter_id' => $actor->id,
+        'muted_user_id' => $target->id,
+    ]);
+
+    Sanctum::actingAs($actor, ['*']);
+
+    $blocked = $this->postJson(API_V1_PREFIX."/users/{$target->id}/block");
+    $blocked->assertCreated();
+    $blocked->assertJsonPath('status', 'blocked');
+
+    $this->assertDatabaseHas('user_blocks', [
+        'blocker_id' => $actor->id,
+        'blocked_id' => $target->id,
+    ]);
+    $this->assertDatabaseMissing('follows', [
+        'follower_id' => $actor->id,
+        'following_id' => $target->id,
+    ]);
+    $this->assertDatabaseMissing('follow_requests', [
+        'requester_id' => $target->id,
+        'recipient_id' => $actor->id,
+    ]);
+    $this->assertDatabaseMissing('user_mutes', [
+        'muter_id' => $actor->id,
+        'muted_user_id' => $target->id,
+    ]);
+
+    $blockedList = $this->getJson(API_V1_PREFIX.'/users/blocked');
+    $blockedList->assertOk();
+    $blockedList->assertJsonCount(1, 'data');
+    $blockedList->assertJsonPath('data.0.id', (string) $target->id);
+
+    Sanctum::actingAs($target, ['*']);
+    $this->getJson(API_V1_PREFIX."/users/{$actor->id}")->assertForbidden();
+    $this->postJson(API_V1_PREFIX."/users/{$actor->id}/follow")->assertForbidden();
+
+    Sanctum::actingAs($actor, ['*']);
+
+    $unblocked = $this->postJson(API_V1_PREFIX."/users/{$target->id}/block");
+    $unblocked->assertOk();
+    $unblocked->assertJsonPath('status', 'unblocked');
+
+    $this->assertDatabaseMissing('user_blocks', [
+        'blocker_id' => $actor->id,
+        'blocked_id' => $target->id,
+    ]);
+});
+
+test('users can toggle mute independently from block state', function (): void {
+    $actor = User::factory()->create();
+    $target = User::factory()->create();
+
+    Sanctum::actingAs($actor, ['*']);
+
+    $muted = $this->postJson(API_V1_PREFIX."/users/{$target->id}/mute");
+    $muted->assertCreated();
+    $muted->assertJsonPath('status', 'muted');
+
+    $this->assertDatabaseHas('user_mutes', [
+        'muter_id' => $actor->id,
+        'muted_user_id' => $target->id,
+    ]);
+
+    $mutedList = $this->getJson(API_V1_PREFIX.'/users/muted');
+    $mutedList->assertOk();
+    $mutedList->assertJsonCount(1, 'data');
+    $mutedList->assertJsonPath('data.0.id', (string) $target->id);
+
+    $unmuted = $this->postJson(API_V1_PREFIX."/users/{$target->id}/mute");
+    $unmuted->assertOk();
+    $unmuted->assertJsonPath('status', 'unmuted');
+
+    $this->assertDatabaseMissing('user_mutes', [
+        'muter_id' => $actor->id,
+        'muted_user_id' => $target->id,
+    ]);
+});
+
+test('users can report posts and comments once per target', function (): void {
+    $reporter = User::factory()->create();
+    $author = User::factory()->create();
+    $post = Post::factory()->for($author)->create();
+    $comment = Comment::factory()->for($post)->for($author)->create();
+
+    Sanctum::actingAs($reporter, ['*']);
+
+    $firstPostReport = $this->postJson(API_V1_PREFIX."/posts/{$post->id}/reports", [
+        'reason' => 'Spam content',
+        'details' => 'Repeated spam links',
+    ]);
+    $firstPostReport->assertCreated();
+    $firstPostReport->assertJsonPath('status', 'open');
+
+    $duplicatePostReport = $this->postJson(API_V1_PREFIX."/posts/{$post->id}/reports", [
+        'reason' => 'Spam content',
+    ]);
+    $duplicatePostReport->assertOk();
+    $duplicatePostReport->assertJsonPath('message', 'Report already submitted.');
+
+    $firstCommentReport = $this->postJson(API_V1_PREFIX."/comments/{$comment->id}/reports", [
+        'reason' => 'Harassment',
+    ]);
+    $firstCommentReport->assertCreated();
+
+    $this->assertDatabaseCount('reports', 2);
+
+    $this->assertDatabaseHas('reports', [
+        'reporter_id' => $reporter->id,
+        'reportable_type' => Post::class,
+        'reportable_id' => $post->id,
+    ]);
+
+    $this->assertDatabaseHas('reports', [
+        'reporter_id' => $reporter->id,
+        'reportable_type' => Comment::class,
+        'reportable_id' => $comment->id,
+    ]);
 });
 
 test('users list enforces minimum and maximum per_page limits', function (): void {
@@ -562,9 +715,9 @@ test('users can list accepted followers and following connections', function ():
         'accepted_at' => now(),
     ]);
 
-    Follow::factory()->pending()->create([
-        'follower_id' => $followerPending->id,
-        'following_id' => $profileOwner->id,
+    FollowRequest::factory()->create([
+        'requester_id' => $followerPending->id,
+        'recipient_id' => $profileOwner->id,
     ]);
 
     Follow::factory()->create([
@@ -615,9 +768,14 @@ test('guests cannot access newly added v1 engagement and discovery endpoints', f
     $owner = User::factory()->create();
     $post = Post::factory()->for($owner)->create();
     $comment = Comment::factory()->for($post)->for($owner)->create();
+    $followRequest = FollowRequest::factory()->create([
+        'recipient_id' => $owner->id,
+    ]);
 
     $this->postJson(API_V1_PREFIX."/posts/{$post->id}/likes")->assertUnauthorized();
     $this->postJson(API_V1_PREFIX."/comments/{$comment->id}/likes")->assertUnauthorized();
+    $this->postJson(API_V1_PREFIX."/posts/{$post->id}/reports", ['reason' => 'spam'])->assertUnauthorized();
+    $this->postJson(API_V1_PREFIX."/comments/{$comment->id}/reports", ['reason' => 'spam'])->assertUnauthorized();
 
     $this->getJson(API_V1_PREFIX.'/search/users?query=test')->assertUnauthorized();
     $this->getJson(API_V1_PREFIX.'/search/posts?query=test')->assertUnauthorized();
@@ -626,6 +784,14 @@ test('guests cannot access newly added v1 engagement and discovery endpoints', f
     $this->getJson(API_V1_PREFIX."/users/{$owner->id}/liked-posts")->assertUnauthorized();
     $this->getJson(API_V1_PREFIX."/users/{$owner->id}/followers")->assertUnauthorized();
     $this->getJson(API_V1_PREFIX."/users/{$owner->id}/following")->assertUnauthorized();
+    $this->getJson(API_V1_PREFIX.'/users/blocked')->assertUnauthorized();
+    $this->getJson(API_V1_PREFIX.'/users/muted')->assertUnauthorized();
+    $this->postJson(API_V1_PREFIX."/users/{$owner->id}/block")->assertUnauthorized();
+    $this->postJson(API_V1_PREFIX."/users/{$owner->id}/mute")->assertUnauthorized();
+    $this->getJson(API_V1_PREFIX.'/follow-requests')->assertUnauthorized();
+    $this->postJson(API_V1_PREFIX."/follow-requests/{$followRequest->id}/accept")->assertUnauthorized();
+    $this->deleteJson(API_V1_PREFIX."/follow-requests/{$followRequest->id}")->assertUnauthorized();
+    $this->deleteJson(API_V1_PREFIX."/follow-requests/{$followRequest->id}/cancel")->assertUnauthorized();
 });
 
 test('private profiles are hidden from unrelated users', function (): void {
@@ -695,4 +861,26 @@ test('accepted followers can access private profile content', function (): void 
     $this->postJson(API_V1_PREFIX."/comments/{$comment->id}/likes")->assertCreated();
 
     $this->getJson(API_V1_PREFIX.'/search/users?query='.$privateOwner->username)->assertOk()->assertJsonCount(1, 'data');
+});
+test('requesters can cancel their own pending follow requests', function (): void {
+    $targetUser = User::factory()->create([
+        'private_profile' => true,
+    ]);
+    $requester = User::factory()->create();
+
+    Sanctum::actingAs($requester, ['*']);
+    $this->postJson(API_V1_PREFIX."/users/{$targetUser->id}/follow")->assertCreated();
+
+    $followRequest = FollowRequest::query()
+        ->where('requester_id', $requester->id)
+        ->where('recipient_id', $targetUser->id)
+        ->firstOrFail();
+
+    $cancel = $this->deleteJson(API_V1_PREFIX."/follow-requests/{$followRequest->id}/cancel");
+    $cancel->assertOk();
+    $cancel->assertJsonPath('status', 'unfollowed');
+
+    $this->assertDatabaseMissing('follow_requests', [
+        'id' => $followRequest->id,
+    ]);
 });

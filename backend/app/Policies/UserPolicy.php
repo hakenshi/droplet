@@ -35,7 +35,7 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
-        return $user->id === $model->id;
+        return $this->ownsUser($user, $model);
     }
 
     /**
@@ -43,7 +43,7 @@ class UserPolicy
      */
     public function delete(User $user, User $model): bool
     {
-        return $user->id === $model->id;
+        return $this->ownsUser($user, $model);
     }
 
     /**
@@ -51,13 +51,18 @@ class UserPolicy
      */
     public function restore(User $user, User $model): bool
     {
-        return $user->id === $model->id;
+        return $this->ownsUser($user, $model);
     }
 
     /**
      * Determine whether the user can permanently delete the model.
      */
     public function forceDelete(User $user, User $model): bool
+    {
+        return $this->ownsUser($user, $model);
+    }
+
+    private function ownsUser(User $user, User $model): bool
     {
         return $user->id === $model->id;
     }

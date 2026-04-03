@@ -16,10 +16,11 @@ class StoreCommentRequest extends FormRequest
     public function authorize(): bool
     {
         $post = $this->route('post');
+        $user = $this->user();
 
-        return (bool) $this->user()?->can('create', Comment::class)
+        return (bool) $user?->can('create', Comment::class)
             && $post !== null
-            && (bool) $this->user()?->can('view', $post);
+            && (bool) $user?->can('view', $post);
     }
 
     /**

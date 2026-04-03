@@ -15,8 +15,10 @@ class UserPostController extends Controller
 {
     use ConstrainsPagination;
 
-    public function index(Request $request, User $user): AnonymousResourceCollection
-    {
+    public function index(
+        Request $request,
+        User $user,
+    ): AnonymousResourceCollection {
         $this->authorize('view', $user);
 
         $posts = Post::query()
@@ -29,13 +31,18 @@ class UserPostController extends Controller
         return PostResource::collection($posts);
     }
 
-    public function liked(Request $request, User $user): AnonymousResourceCollection
-    {
+    public function liked(
+        Request $request,
+        User $user,
+    ): AnonymousResourceCollection {
         $this->authorize('view', $user);
 
         $posts = Post::query()
             ->visibleTo($request->user())
-            ->whereHas('likes', fn (Builder $builder) => $builder->whereBelongsTo($user))
+            ->whereHas(
+                'likes',
+                fn (Builder $builder) => $builder->whereBelongsTo($user),
+            )
             ->with(['user', 'images'])
             ->withCount('comments')
             ->orderByDesc('created_at')

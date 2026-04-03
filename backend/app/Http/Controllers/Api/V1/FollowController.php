@@ -7,7 +7,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\ToggleFollowRequest;
 use App\Http\Resources\UserResource;
 use App\Models\Follow;
+use App\Models\FollowRequest;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -26,11 +28,18 @@ class FollowController extends Controller
     public function toggle(ToggleFollowRequest $request, User $user): JsonResponse
     {
         $follower = $request->user();
+        $isPrivateProfile = $user->private_profile;
 
         if ($follower->is($user)) {
             return response()->json([
                 'message' => 'You cannot follow yourself.',
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        if ($user->isBlockedWith($follower)) {
+            return response()->json([
+                'message' => 'You cannot follow this user.',
+            ], Response::HTTP_FORBIDDEN);
         }
 
         $follow = Follow::query()
@@ -47,15 +56,45 @@ class FollowController extends Controller
             ]);
         }
 
+        $followRequest = FollowRequest::query()
+            ->where('requester_id', $follower->id)
+            ->where('recipient_id', $user->id)
+            ->first();
+
+        if ($isPrivateProfile) {
+            if ($followRequest !== null) {
+                $followRequest->delete();
+
+                return response()->json([
+                    'message' => 'Follow removed.',
+                    'status' => self::STATUS_UNFOLLOWED,
+                ]);
+            }
+
+            FollowRequest::create([
+                'requester_id' => $follower->id,
+                'recipient_id' => $user->id,
+            ]);
+
+            return response()->json([
+                'message' => 'Follow request processed.',
+                'status' => self::STATUS_REQUESTED,
+            ], Response::HTTP_CREATED);
+        }
+
+        if ($followRequest !== null) {
+            $followRequest->delete();
+        }
+
         Follow::create([
             'follower_id' => $follower->id,
             'following_id' => $user->id,
-            'accepted_at' => $user->private_profile ? null : now(),
+            'accepted_at' => now(),
         ]);
 
         return response()->json([
             'message' => 'Follow request processed.',
-            'status' => $user->private_profile ? self::STATUS_REQUESTED : self::STATUS_FOLLOWING,
+            'status' => self::STATUS_FOLLOWING,
         ], Response::HTTP_CREATED);
     }
 
@@ -63,64 +102,56 @@ class FollowController extends Controller
     {
         $this->authorize('view', $user);
 
-        $followers = User::query()
-            ->whereIn('id', Follow::query()
-                ->select('follower_id')
-                ->where('following_id', $user->id)
-                ->whereNotNull('accepted_at'))
-            ->withCount(['followers', 'followings', 'posts'])
-            ->orderByDesc('created_at')
-            ->paginate($this->resolvePerPage($request));
-
-        return UserResource::collection($followers);
+        return $this->paginateUsersFromIds($request, Follow::query()
+            ->select('follower_id')
+            ->where('following_id', $user->id)
+            ->whereNotNull('accepted_at'));
     }
 
     public function following(Request $request, User $user): AnonymousResourceCollection
     {
         $this->authorize('view', $user);
 
-        $following = User::query()
-            ->whereIn('id', Follow::query()
-                ->select('following_id')
-                ->where('follower_id', $user->id)
-                ->whereNotNull('accepted_at'))
-            ->withCount(['followers', 'followings', 'posts'])
-            ->orderByDesc('created_at')
-            ->paginate($this->resolvePerPage($request));
-
-        return UserResource::collection($following);
+        return $this->paginateUsersFromIds($request, Follow::query()
+            ->select('following_id')
+            ->where('follower_id', $user->id)
+            ->whereNotNull('accepted_at'));
     }
 
     public function pending(Request $request): AnonymousResourceCollection
     {
         $currentUser = $request->user();
 
-        $pendingFollowers = User::query()
-            ->whereIn('id', Follow::query()
-                ->select('follower_id')
-                ->where('following_id', $currentUser->id)
-                ->whereNull('accepted_at'))
-            ->withCount(['followers', 'followings', 'posts'])
-            ->orderByDesc('created_at')
-            ->paginate($this->resolvePerPage($request));
-
-        return UserResource::collection($pendingFollowers);
+        return $this->paginateUsersFromIds($request, FollowRequest::query()
+            ->select('requester_id')
+            ->where('recipient_id', $currentUser->id));
     }
 
-    public function accept(Request $request, Follow $follow): JsonResponse
+    public function accept(FollowRequest $followRequest): JsonResponse
     {
-        $this->authorize('update', $follow);
+        $this->authorize('update', $followRequest);
 
-        if ($follow->accepted_at !== null) {
+        $existingFollow = Follow::query()
+            ->where('follower_id', $followRequest->requester_id)
+            ->where('following_id', $followRequest->recipient_id)
+            ->first();
+
+        if ($existingFollow !== null) {
+            $followRequest->delete();
+
             return response()->json([
                 'message' => 'Follow request already accepted.',
                 'status' => self::STATUS_FOLLOWING,
             ]);
         }
 
-        $follow->update([
+        Follow::create([
+            'follower_id' => $followRequest->requester_id,
+            'following_id' => $followRequest->recipient_id,
             'accepted_at' => now(),
         ]);
+
+        $followRequest->delete();
 
         return response()->json([
             'message' => 'Follow request accepted.',
@@ -128,15 +159,38 @@ class FollowController extends Controller
         ]);
     }
 
-    public function reject(Request $request, Follow $follow): JsonResponse
+    public function reject(FollowRequest $followRequest): JsonResponse
     {
-        $this->authorize('update', $follow);
+        $this->authorize('update', $followRequest);
 
-        $follow->delete();
+        $followRequest->delete();
 
         return response()->json([
             'message' => 'Follow request rejected.',
             'status' => self::STATUS_UNFOLLOWED,
         ]);
+    }
+
+    public function cancel(FollowRequest $followRequest): JsonResponse
+    {
+        $this->authorize('delete', $followRequest);
+
+        $followRequest->delete();
+
+        return response()->json([
+            'message' => 'Follow request cancelled.',
+            'status' => self::STATUS_UNFOLLOWED,
+        ]);
+    }
+
+    private function paginateUsersFromIds(Request $request, Builder $idsQuery): AnonymousResourceCollection
+    {
+        $users = User::query()
+            ->whereIn('id', $idsQuery)
+            ->withCount(['followers', 'followings', 'posts'])
+            ->orderByDesc('created_at')
+            ->paginate($this->resolvePerPage($request));
+
+        return UserResource::collection($users);
     }
 }

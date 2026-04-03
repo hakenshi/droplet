@@ -38,7 +38,7 @@ class PostPolicy
      */
     public function update(User $user, Post $post): bool
     {
-        return $user->id === $post->user_id;
+        return $this->ownsPost($user, $post);
     }
 
     /**
@@ -46,7 +46,7 @@ class PostPolicy
      */
     public function delete(User $user, Post $post): bool
     {
-        return $user->id === $post->user_id;
+        return $this->ownsPost($user, $post);
     }
 
     /**
@@ -54,13 +54,18 @@ class PostPolicy
      */
     public function restore(User $user, Post $post): bool
     {
-        return $user->id === $post->user_id;
+        return $this->ownsPost($user, $post);
     }
 
     /**
      * Determine whether the user can permanently delete the model.
      */
     public function forceDelete(User $user, Post $post): bool
+    {
+        return $this->ownsPost($user, $post);
+    }
+
+    private function ownsPost(User $user, Post $post): bool
     {
         return $user->id === $post->user_id;
     }

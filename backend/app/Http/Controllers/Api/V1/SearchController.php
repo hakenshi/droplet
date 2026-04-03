@@ -18,7 +18,7 @@ class SearchController extends Controller
 
     public function users(SearchRequest $request): AnonymousResourceCollection
     {
-        $query = $request->string('query')->trim()->toString();
+        $query = $this->resolveSearchQuery($request);
 
         $users = User::query()
             ->visibleTo($request->user())
@@ -36,14 +36,16 @@ class SearchController extends Controller
 
     public function posts(SearchRequest $request): AnonymousResourceCollection
     {
-        $query = $request->string('query')->trim()->toString();
+        $query = $this->resolveSearchQuery($request);
 
         $posts = Post::query()
             ->visibleTo($request->user())
             ->where(function (Builder $builder) use ($query): void {
                 $builder
                     ->where('content', 'like', "%{$query}%")
-                    ->orWhereHas('user', fn (Builder $authorBuilder) => $authorBuilder->where('username', 'like', "%{$query}%"));
+                    ->orWhereHas('user', function (Builder $authorBuilder) use ($query): void {
+                        $authorBuilder->where('username', 'like', "%{$query}%");
+                    });
             })
             ->with(['user', 'images'])
             ->withCount('comments')
@@ -51,5 +53,10 @@ class SearchController extends Controller
             ->paginate($this->resolvePerPage($request));
 
         return PostResource::collection($posts);
+    }
+
+    private function resolveSearchQuery(SearchRequest $request): string
+    {
+        return $request->string('query')->trim()->toString();
     }
 }

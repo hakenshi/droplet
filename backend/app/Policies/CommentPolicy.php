@@ -38,7 +38,7 @@ class CommentPolicy
      */
     public function update(User $user, Comment $comment): bool
     {
-        return $user->id === $comment->user_id;
+        return $this->ownsComment($user, $comment);
     }
 
     /**
@@ -46,7 +46,7 @@ class CommentPolicy
      */
     public function delete(User $user, Comment $comment): bool
     {
-        return $user->id === $comment->user_id;
+        return $this->ownsComment($user, $comment);
     }
 
     /**
@@ -54,13 +54,18 @@ class CommentPolicy
      */
     public function restore(User $user, Comment $comment): bool
     {
-        return $user->id === $comment->user_id;
+        return $this->ownsComment($user, $comment);
     }
 
     /**
      * Determine whether the user can permanently delete the model.
      */
     public function forceDelete(User $user, Comment $comment): bool
+    {
+        return $this->ownsComment($user, $comment);
+    }
+
+    private function ownsComment(User $user, Comment $comment): bool
     {
         return $user->id === $comment->user_id;
     }

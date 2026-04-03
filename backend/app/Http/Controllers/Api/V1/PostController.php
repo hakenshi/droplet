@@ -8,11 +8,10 @@ use App\Http\Requests\Api\StorePostRequest;
 use App\Http\Requests\Api\UpdatePostRequest;
 use App\Http\Resources\PostResource;
 use App\Models\Post;
-use App\Models\PostImage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Http\UploadedFile\UploadedFile;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -101,15 +100,16 @@ class PostController extends Controller
      */
     private function storePostImages(Post $post, array $images): void
     {
+        $disk = Storage::disk(config('filesystems.media_disk', 's3'));
+
         foreach ($images as $image) {
             if ($image === null) {
                 continue;
             }
 
-            $path = Storage::disk(config('filesystems.media_disk', 's3'))->putFile('posts', $image, 'public');
+            $path = $disk->putFile('posts', $image, 'public');
 
-            PostImage::create([
-                'post_id' => $post->id,
+            $post->images()->create([
                 'url' => $path,
             ]);
         }
@@ -118,9 +118,10 @@ class PostController extends Controller
     private function deletePostImages(Post $post): void
     {
         $post->loadMissing('images');
+        $disk = Storage::disk(config('filesystems.media_disk', 's3'));
 
         foreach ($post->images as $postImage) {
-            Storage::disk(config('filesystems.media_disk', 's3'))->delete($postImage->url);
+            $disk->delete($postImage->url);
             $postImage->delete();
         }
     }
